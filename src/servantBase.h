@@ -9,5 +9,6 @@
 #include "logger.h"
 #include "PerformanceManager.h"
 #include "firstTimeUtilities.h"
+#include "programHolder.hpp"
 
 #endif //TESTEXE_BASE_H
