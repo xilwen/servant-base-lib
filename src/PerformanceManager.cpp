@@ -1,6 +1,6 @@
-#include "PerformanceManager.h"
-#include "packageManager.h"
-#include "logger.h"
+#include "PerformanceManager.hpp"
+#include "packageManager.hpp"
+#include "logger.hpp"
 
 namespace fs = std::experimental::filesystem;
 

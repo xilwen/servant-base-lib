@@ -1,4 +1,4 @@
-#include "vBoxWrapperMessenger.h"
+#include "vBoxWrapperMessenger.hpp"
 #include <thread>
 
 vBoxWrapperMessenger::vBoxWrapperMessenger(tcp::socket* socket):socket(socket)

@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <thread>
 #include "programHolder.hpp"
-#include "logger.h"
+#include "logger.hpp"
 
 programHolder::programHolder()
 {
@@ -57,6 +57,7 @@ void programHolder::run()
         throw std::runtime_error("Create Process Failed");
     running = true;
     std::thread stdOutReadThread(&programHolder::stdOutPipeRunner, this);
+    stdOutReadThread.detach();
 }
 
 std::string *programHolder::getStdOut()
@@ -94,6 +95,7 @@ void programHolder::stdOutPipeRunner()
             break;
         }
     }
+    running = false;
 }
 
 void programHolder::stdInPipeRunner()

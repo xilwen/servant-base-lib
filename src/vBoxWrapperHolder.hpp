@@ -2,6 +2,7 @@
 #define SERVANTBASE_VBOXWRAPPERHOLDER_H
 
 #include <string>
+#include "programHolder.hpp"
 
 class vBoxWrapperHolder
 {
@@ -18,6 +19,7 @@ private:
     void workerThread();
     FILE *consoleOutputPipe;
     static vBoxWrapperHolder* instance;
+    programHolder vBoxWrapper;
 };
 
 

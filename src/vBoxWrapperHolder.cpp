@@ -1,6 +1,6 @@
-#include "vBoxWrapperHolder.h"
-#include "vBoxWrapperClient.h"
-#include "logger.h"
+#include "vBoxWrapperClient.hpp"
+#include "vBoxWrapperHolder.hpp"
+#include "logger.hpp"
 #include <experimental/filesystem>
 #include <thread>
 
@@ -65,21 +65,16 @@ bool vBoxWrapperHolder::isRunning()
 
 void vBoxWrapperHolder::workerThread()
 {
-    char buffer[128] = {0};
-    while (fgets(buffer, 127, consoleOutputPipe))
+    while(vBoxWrapper.isRunning())
     {
-        logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, buffer);
+        if(vBoxWrapper.getCmdLine().find('\n') != std::string::npos)
+        {
+            //TODO Solve conflicts
+            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, vBoxWrapper.getCmdLine());
+            vBoxWrapper.getCmdLine().clear();
+        }
     }
-    if (feof(consoleOutputPipe))
-    {
-        auto errorLevel = _pclose(consoleOutputPipe);
-        logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO,
-                    "worker end with exit code " + std::to_string(errorLevel));
-    } else
-    {
-        logger::log("vBoxWrapperHolder", __func__, InfoLevel::WARNING,
-                    "vBoxWrapper did not output an eof but it ends?");
-    }
+    //TODO implement exit code
     wrapperRunning = false;
 }
 
@@ -87,7 +82,9 @@ void vBoxWrapperHolder::start()
 {
     if (isRunning() || vBoxWrapperPath.empty())
         return;
-    if ((consoleOutputPipe = _popen(vBoxWrapperPath.c_str(), "rt")) == nullptr)
+    vBoxWrapper.setCmdLine(vBoxWrapperPath.c_str());
+    vBoxWrapper.run();
+    if (!vBoxWrapper.isRunning())
     {
         throw std::runtime_error("Can not start VBoxWrapper process");
     }
@@ -103,6 +100,4 @@ vBoxWrapperHolder *vBoxWrapperHolder::getInstance()
         return instance;
     throw std::runtime_error("no instance created.");
 }
-
-
 

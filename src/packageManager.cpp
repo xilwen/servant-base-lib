@@ -1,5 +1,5 @@
-#include "packageManager.h"
-#include "logger.h"
+#include "packageManager.hpp"
+#include "logger.hpp"
 
 namespace fs = std::experimental::filesystem;
 

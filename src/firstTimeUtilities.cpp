@@ -1,8 +1,8 @@
 #include <cmath>
 #include <chrono>
-#include "firstTimeUtilities.h"
-#include "PerformanceManager.h"
-#include "vBoxWrapperClient.h"
+#include "firstTimeUtilities.hpp"
+#include "PerformanceManager.hpp"
+#include "vBoxWrapperClient.hpp"
 
 firstTimeUtilities::firstTimeUtilities()
 {

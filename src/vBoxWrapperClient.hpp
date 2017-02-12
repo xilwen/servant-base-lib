@@ -8,7 +8,7 @@
 #include <string>
 #include <stdexcept>
 #include "asio.hpp"
-#include "vBoxWrapperMessenger.h"
+#include "vBoxWrapperMessenger.hpp"
 
 using asio::ip::tcp;
 

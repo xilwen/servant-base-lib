@@ -1,6 +1,6 @@
 #include <stdexcept>
-#include "htmlFileDownloader.h"
-#include "logger.h"
+#include "htmlFileDownloader.hpp"
+#include "logger.hpp"
 #include <curl.h>
 #include <thread>
 

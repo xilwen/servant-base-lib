@@ -3,8 +3,8 @@
 
 #include <experimental/filesystem>
 #include <fstream>
-#include "VirtualMachine.h"
-#include "vBoxWrapperClient.h"
+#include "VirtualMachine.hpp"
+#include "vBoxWrapperClient.hpp"
 
 namespace fs = std::experimental::filesystem;
 

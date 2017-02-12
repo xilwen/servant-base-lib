@@ -1,5 +1,5 @@
-#include "VirtualMachine.h"
-#include "vBoxWrapperClient.h"
+#include "VirtualMachine.hpp"
+#include "vBoxWrapperClient.hpp"
 
 VirtualMachine::VirtualMachine()
 {

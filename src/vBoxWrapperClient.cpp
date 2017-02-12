@@ -1,5 +1,5 @@
-#include "vBoxWrapperClient.h"
-#include "logger.h"
+#include "vBoxWrapperClient.hpp"
+#include "logger.hpp"
 
 vBoxWrapperClient *vBoxWrapperClient::instance(nullptr);
 
