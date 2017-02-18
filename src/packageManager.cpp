@@ -202,3 +202,21 @@ packageManager *packageManager::getInstance()
 {
     return instance;
 }
+
+std::string packageManager::getRemoteServiceHost()
+{
+    std::fstream RemoteServerFileStream;
+    if(!fs::exists(getUserDataDir() + "RemoteServer"))
+    {
+        RemoteServerFileStream.open(getUserDataDir() + "RemoteServer", std::ios_base::out);
+        RemoteServerFileStream << "localhost" << std::endl;
+        RemoteServerFileStream.close();
+        return "localhost";
+    } else
+    {
+        std::string remoteHost;
+        RemoteServerFileStream.open(getUserDataDir() + "RemoteServer", std::ios_base::in);
+        RemoteServerFileStream >> remoteHost;
+        return remoteHost;
+    }
+}

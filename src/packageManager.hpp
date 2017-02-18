@@ -39,6 +39,8 @@ public:
 
     static packageManager *getInstance();
 
+    std::string getRemoteServiceHost();
+
 private:
     fs::path userHomeDir,
             userDataDir;

@@ -90,6 +90,8 @@ void programHolder::stdOutPipeRunner()
     {
         succeed = ReadFile(childStdOutRead, buffer, BUFFERSIZE, &numberOfBytesRead, nullptr);
         stdOut += std::string(buffer);
+        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if (!succeed || numberOfBytesRead == 0)
         {
             break;

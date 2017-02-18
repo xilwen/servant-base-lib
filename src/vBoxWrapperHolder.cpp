@@ -65,14 +65,17 @@ bool vBoxWrapperHolder::isRunning()
 
 void vBoxWrapperHolder::workerThread()
 {
-    while(vBoxWrapper.isRunning())
+    while (vBoxWrapper.isRunning())
     {
-        if(vBoxWrapper.getCmdLine().find('\n') != std::string::npos)
+        if (vBoxWrapper.getStdOut()->find("\n") != std::string::npos)
         {
             //TODO Solve conflicts
-            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, vBoxWrapper.getCmdLine());
-            vBoxWrapper.getCmdLine().clear();
+            vBoxWrapper.getStdOut()->resize(vBoxWrapper.getStdOut()->size() - 1);
+            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper.getStdOut());
+            vBoxWrapper.getStdOut()->clear();
         }
+        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     //TODO implement exit code
     wrapperRunning = false;
