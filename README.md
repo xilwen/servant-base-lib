@@ -6,7 +6,7 @@ SERVANT uses Virtualbox for VM management.
 ##Dependencies
 executable of servant-windows-vboxwrapper(at runtime) and working Virtualbox(5.0 or later)  
 CMake 3.6 or later  
-MinGW-w64 and g++ that have <experimental/filesystem> support.  
+MinGW-w64 and g++ that have experimental/filesystem support.  
 asio-1.10.6(without boost)  
 libcurl-7.52.1  
 

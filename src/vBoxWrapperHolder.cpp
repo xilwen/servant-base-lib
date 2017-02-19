@@ -45,16 +45,11 @@ vBoxWrapperHolder::~vBoxWrapperHolder()
     {
         vBoxWrapperClient::getInstance()->message()->message(L"exit");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        for (auto i = 0; i < 5 && wrapperRunning; ++i)
-        {
-            vBoxWrapperClient::getInstance()->message()->message(L"exit");
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            if (i == 4 && wrapperRunning)
-            {
-                logger::log("vBoxWrapperHolder", __func__, InfoLevel::ERR, "Can not stop vBoxWrapperClient normally!");
-            }
-        }
     }
+    wrapperRunning = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    delete vBoxWrapper;
     instance = nullptr;
 }
 
@@ -65,29 +60,29 @@ bool vBoxWrapperHolder::isRunning()
 
 void vBoxWrapperHolder::workerThread()
 {
-    while (vBoxWrapper.isRunning())
+    while (vBoxWrapper->isRunning())
     {
-        if (vBoxWrapper.getStdOut()->find("\n") != std::string::npos)
+        if (vBoxWrapper->getStdOut()->find("\n") != std::string::npos)
         {
             //TODO Solve conflicts
-            vBoxWrapper.getStdOut()->resize(vBoxWrapper.getStdOut()->size() - 1);
-            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper.getStdOut());
-            vBoxWrapper.getStdOut()->clear();
+            vBoxWrapper->getStdOut()->resize(vBoxWrapper->getStdOut()->size() - 1);
+            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper->getStdOut());
+            vBoxWrapper->getStdOut()->clear();
         }
         std::this_thread::yield();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     //TODO implement exit code
-    wrapperRunning = false;
 }
 
 void vBoxWrapperHolder::start()
 {
     if (isRunning() || vBoxWrapperPath.empty())
         return;
-    vBoxWrapper.setCmdLine(vBoxWrapperPath.c_str());
-    vBoxWrapper.run();
-    if (!vBoxWrapper.isRunning())
+    vBoxWrapper = new programHolder();
+    vBoxWrapper->setCmdLine(vBoxWrapperPath.c_str());
+    vBoxWrapper->run();
+    if (!vBoxWrapper->isRunning())
     {
         throw std::runtime_error("Can not start VBoxWrapper process");
     }

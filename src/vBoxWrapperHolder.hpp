@@ -19,7 +19,7 @@ private:
     void workerThread();
     FILE *consoleOutputPipe;
     static vBoxWrapperHolder* instance;
-    programHolder vBoxWrapper;
+    programHolder* vBoxWrapper;
 };
 
 

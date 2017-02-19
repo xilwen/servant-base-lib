@@ -20,8 +20,12 @@ programHolder::programHolder()
 programHolder::~programHolder()
 {
     //TODO Close Child Handle First
+    running = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
     CloseHandle(childStdInWrite);
     CloseHandle(childStdOutRead);
+    CloseHandle(processInformation.hProcess);
+    CloseHandle(processInformation.hThread);
     logger::log(className, __func__, InfoLevel::INFO, className + " destructed.");
 }
 
@@ -86,18 +90,18 @@ void programHolder::stdOutPipeRunner()
     DWORD numberOfBytesRead;
     char buffer[BUFFERSIZE];
     int succeed(false);
-    while (true)
+    while (running)
     {
         succeed = ReadFile(childStdOutRead, buffer, BUFFERSIZE, &numberOfBytesRead, nullptr);
         stdOut += std::string(buffer);
         std::this_thread::yield();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (!succeed || numberOfBytesRead == 0)
+        if (strstr(buffer, "exit") != nullptr || !succeed || numberOfBytesRead == 0)
         {
+            running = false;
             break;
         }
     }
-    running = false;
 }
 
 void programHolder::stdInPipeRunner()
