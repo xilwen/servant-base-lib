@@ -15,11 +15,12 @@ public:
     static vBoxWrapperHolder* getInstance();
 private:
     std::string vBoxWrapperPath;
+    std::string className = "vBoxWrapperHolder";
     bool wrapperRunning = false;
     void workerThread();
     FILE *consoleOutputPipe;
     static vBoxWrapperHolder* instance;
-    programHolder* vBoxWrapper;
+    programHolder* vBoxWrapper = nullptr;
 };
 
 

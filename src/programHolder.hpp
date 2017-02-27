@@ -35,7 +35,6 @@ private:
     PROCESS_INFORMATION processInformation;
     std::string cmdLine,
             stdOut;
-    bool running = false;
 
     void stdOutPipeRunner();
 

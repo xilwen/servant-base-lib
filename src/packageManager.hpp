@@ -51,8 +51,6 @@ private:
     bool firstTime;
     static packageManager *instance;
 
-private:
-
     void initHomePath(std::wstring &userHomePath);
 
     void initDataDir();

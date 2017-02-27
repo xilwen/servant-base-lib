@@ -7,9 +7,9 @@ packageManager *packageManager::instance(nullptr);
 
 packageManager::packageManager(std::wstring userHomePath, vBoxWrapperClient *client) : client(client)
 {
-    instance = this;
     initHomePath(userHomePath);
     initDataDir();
+    instance = this;
     initMachineData();
 }
 

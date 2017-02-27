@@ -14,14 +14,13 @@ programHolder::programHolder()
     SetHandleInformation(childStdOutRead, HANDLE_FLAG_INHERIT, 0);
     CreatePipe(&childStdInRead, &childStdInWrite, &securityAttributes, 0);
     SetHandleInformation(childStdInWrite, HANDLE_FLAG_INHERIT, 0);
+    ZeroMemory(&processInformation, sizeof(processInformation));
     logger::log(className, __func__, InfoLevel::INFO, className + " initialized.");
 }
 
 programHolder::~programHolder()
 {
-    //TODO Close Child Handle First
-    running = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
     CloseHandle(childStdInWrite);
     CloseHandle(childStdOutRead);
     CloseHandle(processInformation.hProcess);
@@ -59,7 +58,6 @@ void programHolder::run()
 
     if (!succeed)
         throw std::runtime_error("Create Process Failed");
-    running = true;
     std::thread stdOutReadThread(&programHolder::stdOutPipeRunner, this);
     stdOutReadThread.detach();
 }
@@ -82,7 +80,11 @@ std::string programHolder::getCmdLine()
 
 bool programHolder::isRunning()
 {
-    return running;
+    if (processInformation.hProcess == nullptr)
+        return false;
+    unsigned long exitCode;
+    GetExitCodeProcess(processInformation.hProcess, &exitCode);
+    return (STILL_ACTIVE == exitCode);
 }
 
 void programHolder::stdOutPipeRunner()
@@ -90,7 +92,7 @@ void programHolder::stdOutPipeRunner()
     DWORD numberOfBytesRead;
     char buffer[BUFFERSIZE];
     int succeed(false);
-    while (running)
+    while (isRunning())
     {
         succeed = ReadFile(childStdOutRead, buffer, BUFFERSIZE, &numberOfBytesRead, nullptr);
         stdOut += std::string(buffer);
@@ -98,7 +100,6 @@ void programHolder::stdOutPipeRunner()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if (strstr(buffer, "exit") != nullptr || !succeed || numberOfBytesRead == 0)
         {
-            running = false;
             break;
         }
     }

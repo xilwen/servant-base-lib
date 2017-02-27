@@ -41,10 +41,20 @@ vBoxWrapperHolder::vBoxWrapperHolder(std::string path)
 
 vBoxWrapperHolder::~vBoxWrapperHolder()
 {
+    logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
     if (isRunning())
     {
         vBoxWrapperClient::getInstance()->message()->message(L"exit");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        for (auto i = 0; i < 5 && isRunning(); ++i)
+        {
+            vBoxWrapperClient::getInstance()->message()->message(L"exit");
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            if (i == 4 && isRunning())
+            {
+                logger::log("vBoxWrapperHolder", __func__, InfoLevel::ERR, "Can not stop vBoxWrapperClient normally!");
+            }
+        }
     }
     wrapperRunning = false;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -55,12 +65,14 @@ vBoxWrapperHolder::~vBoxWrapperHolder()
 
 bool vBoxWrapperHolder::isRunning()
 {
-    return wrapperRunning;
+    if (!vBoxWrapper)
+        return false;
+    return vBoxWrapper->isRunning();
 }
 
 void vBoxWrapperHolder::workerThread()
 {
-    while (vBoxWrapper->isRunning())
+    while (isRunning())
     {
         if (vBoxWrapper->getStdOut()->find("\n") != std::string::npos)
         {
@@ -82,7 +94,7 @@ void vBoxWrapperHolder::start()
     vBoxWrapper = new programHolder();
     vBoxWrapper->setCmdLine(vBoxWrapperPath.c_str());
     vBoxWrapper->run();
-    if (!vBoxWrapper->isRunning())
+    if (!isRunning())
     {
         throw std::runtime_error("Can not start VBoxWrapper process");
     }
