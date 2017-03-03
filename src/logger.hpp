@@ -8,16 +8,20 @@ enum InfoLevel //Message Output Level
     INFO, WARNING, ERR
 };
 
-class logger
+class Logger
 {
 public:
-    logger();
+    Logger();
 
     static void log(std::string className, std::string func, InfoLevel level, std::string string);
 
     static void log(std::string className, std::string func, InfoLevel level, std::wstring wstring);
 
-    ~logger();
+    static void setLogFileDir(std::wstring path);
+
+    static void setLogFileDir(std::string path);
+
+    ~Logger();
 
 private:
     static void printBasicInfo(const InfoLevel &level, std::stringstream &stringstream);
@@ -28,11 +32,13 @@ private:
 
     static void unlockWriting();
 
-    static std::string toString(const std::wstring &string);
+    static std::string logFileDir;
 
     static std::string logFileName;
 
     static bool writeLock;
 
     static void findAndDelete(std::string &timeString, const std::string &toReplace);
+
+    static void initialLogFileName();
 };

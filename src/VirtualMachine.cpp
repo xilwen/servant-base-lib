@@ -1,5 +1,5 @@
 #include "VirtualMachine.hpp"
-#include "vBoxWrapperClient.hpp"
+#include "VBoxWrapperClient.hpp"
 
 VirtualMachine::VirtualMachine()
 {
@@ -28,16 +28,16 @@ std::wstring VirtualMachine::getName()
 
 std::wstring VirtualMachine::launch()
 {
-    return vBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"control start");
+    return VBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"control start");
 }
 
 std::wstring VirtualMachine::sendPowerOffSignal()
 {
-    return vBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"control stop");
+    return VBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"control stop");
 }
 
 void VirtualMachine::rename(std::wstring newName)
 {
-    vBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"set machineName " + newName);
+    VBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"set machineName " + newName);
 
 }

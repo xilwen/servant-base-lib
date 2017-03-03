@@ -16,15 +16,15 @@ include_directories(./src)
 add_definitions(-DASIO_STANDALONE -DCURL_STATICLIB)
 
 set(SOURCE_FILES
-        src/vBoxWrapperClient.cpp
-        src/logger.cpp
-        src/vBoxWrapperMessenger.cpp
-        src/packageManager.cpp
+        src/VBoxWrapperClient.cpp
+        src/Logger.cpp
+        src/VBoxWrapperMessenger.cpp
+        src/PackageManager.cpp
         src/VirtualMachine.cpp
-        src/htmlFileDownloader.cpp
-        src/vBoxWrapperHolder.cpp
-        src/firstTimeUtilities.cpp
-        src/PerformanceManager.cpp src/programHolderForWindows.cpp src/programHolderForWindows.hpp src/programHolder.cpp src/programHolder.hpp)
+        src/HtmlFileDownloader.cpp
+        src/VBoxWrapperHolder.cpp
+        src/FirstTimeUtilities.cpp
+        src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp)
 
 add_library(SERVANTBase ${SOURCE_FILES})
 target_link_libraries(SERVANTBase stdc++fs curl ws2_32 wldap32)

@@ -8,28 +8,28 @@
 #include <string>
 #include <stdexcept>
 #include "asio.hpp"
-#include "vBoxWrapperMessenger.hpp"
+#include "VBoxWrapperMessenger.hpp"
 
 using asio::ip::tcp;
 
-class vBoxWrapperMessenger;
+class VBoxWrapperMessenger;
 
-class vBoxWrapperClient
+class VBoxWrapperClient
 {
 public:
-    vBoxWrapperClient();
-    ~vBoxWrapperClient();
+    VBoxWrapperClient();
+    ~VBoxWrapperClient();
     void connect();
     void handShake();
     void waitForPortOpen();
-    vBoxWrapperMessenger* message();
+    VBoxWrapperMessenger* message();
 
-    static vBoxWrapperClient *getInstance();
+    static VBoxWrapperClient *getInstance();
 
 protected:
 
 private:
-    const std::string className = "vBoxWrapperClient";
+    const std::string className = "VBoxWrapperClient";
     asio::io_service io_service;
     void init();
     void uninit();
@@ -37,9 +37,9 @@ private:
     asio::error_code lastError;
     tcp::resolver::iterator *endpoint_iterator;
     tcp::socket* socket = nullptr;
-    vBoxWrapperMessenger *messenger = nullptr;
+    VBoxWrapperMessenger *messenger = nullptr;
 
-    static vBoxWrapperClient *instance;
+    static VBoxWrapperClient *instance;
 };
 
 #endif // CLIENT_H

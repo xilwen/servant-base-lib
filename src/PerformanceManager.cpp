@@ -1,6 +1,6 @@
 #include "PerformanceManager.hpp"
-#include "packageManager.hpp"
-#include "logger.hpp"
+#include "PackageManager.hpp"
+#include "Logger.hpp"
 
 namespace fs = std::experimental::filesystem;
 
@@ -39,7 +39,7 @@ void PerformanceManager::setDiskRate(int diskRate)
 PerformanceManager::PerformanceManager()
 {
     instance = this;
-    std::string perfDataPath(packageManager::getInstance()->getUserDataDir() + "/perfData");
+    std::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
     if (fs::exists(perfDataPath))
     {
         std::ifstream perfDataIfstream;
@@ -73,7 +73,7 @@ PerformanceManager::PerformanceManager()
 
 PerformanceManager::~PerformanceManager()
 {
-    std::string perfDataPath(packageManager::getInstance()->getUserDataDir() + "/perfData");
+    std::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
     std::ofstream perfDataOfstream;
     perfDataOfstream.open(perfDataPath, std::ios::trunc | std::ios::out);
     if (perfDataOfstream.is_open())
@@ -84,7 +84,7 @@ PerformanceManager::~PerformanceManager()
 
     } else
     {
-        logger::log("PerformanceManager", __func__, InfoLevel::WARNING,
+        Logger::log("PerformanceManager", __func__, InfoLevel::WARNING,
                     "Can not write performance data, changes will not be saved.");
     }
     instance = nullptr;
@@ -97,5 +97,5 @@ PerformanceManager *PerformanceManager::getInstance()
 
 bool PerformanceManager::getVirtualizationSupportStatus()
 {
-    return (vBoxWrapperClient::getInstance()->message()->message(L"get vmxSupport") == L"true");
+    return (VBoxWrapperClient::getInstance()->message()->message(L"get vmxSupport") == L"true");
 }

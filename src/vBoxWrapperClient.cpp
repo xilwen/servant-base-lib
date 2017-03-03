@@ -1,24 +1,24 @@
-#include "vBoxWrapperClient.hpp"
-#include "logger.hpp"
+#include "VBoxWrapperClient.hpp"
+#include "Logger.hpp"
 
-vBoxWrapperClient *vBoxWrapperClient::instance(nullptr);
+VBoxWrapperClient *VBoxWrapperClient::instance(nullptr);
 
-vBoxWrapperClient::vBoxWrapperClient()
+VBoxWrapperClient::VBoxWrapperClient()
 {
     instance = this;
     init();
 }
 
-void vBoxWrapperClient::init()
+void VBoxWrapperClient::init()
 {
-    logger::log(className, __func__, InfoLevel::INFO, "SERVANT Base - VBoxWrapper Client");
+    Logger::log(className, __func__, InfoLevel::INFO, "SERVANT Base - VBoxWrapper Client");
     tcp::resolver resolver(io_service);
     tcp::resolver::query query("localhost", SERVER_TCPV4_PORT);
     endpoint_iterator = new tcp::resolver::iterator;
     *endpoint_iterator = resolver.resolve(query);
 }
 
-void vBoxWrapperClient::waitForPortOpen()
+void VBoxWrapperClient::waitForPortOpen()
 {
     //TODO make it detect other than FTP Port
     asio::io_service io_service;
@@ -39,7 +39,7 @@ void vBoxWrapperClient::waitForPortOpen()
     asio::read_until(socket, response, "\n", lastError);
 }
 
-void vBoxWrapperClient::connect()
+void VBoxWrapperClient::connect()
 {
     socket = new tcp::socket(io_service);
     try
@@ -48,24 +48,24 @@ void vBoxWrapperClient::connect()
     }
     catch (const std::exception &e)
     {
-        logger::log(className, __func__, InfoLevel::ERR, e.what());
+        Logger::log(className, __func__, InfoLevel::ERR, e.what());
         delete socket;
         return;
     }
     catch (...)
     {
-        logger::log(className, __func__, InfoLevel::ERR, "Something not std::exception was thrown!");
+        Logger::log(className, __func__, InfoLevel::ERR, "Something not std::exception was thrown!");
         delete socket;
         return;
     }
     if (lastError)
         return;
-    messenger = new vBoxWrapperMessenger(socket);
-    logger::log(className, __func__, InfoLevel::INFO, "Connected to server.");
+    messenger = new VBoxWrapperMessenger(socket);
+    Logger::log(className, __func__, InfoLevel::INFO, "Connected to server.");
 }
 
 
-void vBoxWrapperClient::handShake()
+void VBoxWrapperClient::handShake()
 {
     if (!socket)
         throw new std::runtime_error("No socket, can not handshake.");
@@ -74,21 +74,21 @@ void vBoxWrapperClient::handShake()
         std::wstring wstring(L"ready");
         if (message()->message(wstring).compare(L"ready") == 0)
         {
-            logger::log(className, __func__, InfoLevel::INFO, "Hand shook, looks good.");
+            Logger::log(className, __func__, InfoLevel::INFO, "Hand shook, looks good.");
         } else
         {
-            logger::log(className, __func__, InfoLevel::ERR,
+            Logger::log(className, __func__, InfoLevel::ERR,
                         "Something wrong happened during handshake. Socket terminated.");
             delete socket;
         }
     }
     catch (std::exception &e)
     {
-        logger::log(className, __func__, InfoLevel::ERR, e.what());
+        Logger::log(className, __func__, InfoLevel::ERR, e.what());
     }
 }
 
-void vBoxWrapperClient::restart()
+void VBoxWrapperClient::restart()
 {
     uninit();
     init();
@@ -99,7 +99,7 @@ void vBoxWrapperClient::restart()
     handShake();
 }
 
-void vBoxWrapperClient::uninit()
+void VBoxWrapperClient::uninit()
 {
     if (endpoint_iterator)
         delete endpoint_iterator;
@@ -111,22 +111,22 @@ void vBoxWrapperClient::uninit()
     }
     if (messenger)
         delete messenger;
-    logger::log(className, __func__, InfoLevel::INFO, "Client has been turned off.");
+    Logger::log(className, __func__, InfoLevel::INFO, "Client has been turned off.");
 }
 
 
-vBoxWrapperClient::~vBoxWrapperClient()
+VBoxWrapperClient::~VBoxWrapperClient()
 {
     uninit();
     instance = nullptr;
 }
 
-vBoxWrapperMessenger *vBoxWrapperClient::message()
+VBoxWrapperMessenger *VBoxWrapperClient::message()
 {
     return messenger;
 }
 
-vBoxWrapperClient *vBoxWrapperClient::getInstance()
+VBoxWrapperClient *VBoxWrapperClient::getInstance()
 {
     return instance;
 }

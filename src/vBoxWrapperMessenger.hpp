@@ -4,12 +4,12 @@
 using asio::ip::tcp;
 
 //TODO solve race conditions
-class vBoxWrapperMessenger
+class VBoxWrapperMessenger
 {
 public:
-    vBoxWrapperMessenger() = delete;
-    explicit vBoxWrapperMessenger(tcp::socket* socket);
-    ~vBoxWrapperMessenger();
+    VBoxWrapperMessenger() = delete;
+    explicit VBoxWrapperMessenger(tcp::socket* socket);
+    ~VBoxWrapperMessenger();
     std::wstring message(std::wstring toSend);
     std::wstring machineMessage(std::wstring machineNameOrId, std::wstring toSend);
 

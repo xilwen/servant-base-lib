@@ -3,10 +3,10 @@
 
 #include <string>
 
-class htmlFileDownloader
+class HtmlFileDownloader
 {
 public:
-    htmlFileDownloader();
+    HtmlFileDownloader();
 
     void startDownload(std::string url, std::string localPath);
 
@@ -16,21 +16,21 @@ public:
 
     bool succeededLastTime();
 
-    virtual ~htmlFileDownloader();
+    virtual ~HtmlFileDownloader();
 
-    static htmlFileDownloader *returnExist();
+    static HtmlFileDownloader *returnExist();
     void setProgress(unsigned int progress);
 
 private:
     void *curl = nullptr;
-    const std::string className = "htmlFileDownloader";
+    const std::string className = "HtmlFileDownloader";
     bool downloading = false,
             succeeded = false;
     unsigned int progress = 0;
 
     FILE *fp;
     static bool exist;
-    static htmlFileDownloader *instance;
+    static HtmlFileDownloader *instance;
 
 
     void runDownloadThread();

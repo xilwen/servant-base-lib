@@ -1,19 +1,22 @@
-#include "logger.hpp"
-#include "packageManager.hpp"
+#include "Logger.hpp"
+#include "PackageManager.hpp"
+#include "Utilities.hpp"
 #include <thread>
 #include <iomanip>
 
-bool logger::writeLock = false;
+bool Logger::writeLock = false;
 
-std::string logger::logFileName;
+std::string Logger::logFileDir;
 
-logger::logger()
+std::string Logger::logFileName;
+
+Logger::Logger()
 {    /*static functions only*/   }
 
-logger::~logger()
+Logger::~Logger()
 {}
 
-void logger::log(std::string className, std::string func, InfoLevel level, std::string string)
+void Logger::log(std::string className, std::string func, InfoLevel level, std::string string)
 {
     lockWriting();
 
@@ -36,12 +39,12 @@ void logger::log(std::string className, std::string func, InfoLevel level, std::
 
 }
 
-void logger::log(std::string className, std::string func, InfoLevel level, std::wstring wstring)
+void Logger::log(std::string className, std::string func, InfoLevel level, std::wstring wstring)
 {
-    log(className, func, level, toString(wstring));
+    log(className, func, level, Utilities::toString(wstring));
 }
 
-void logger::printBasicInfo(const InfoLevel &level, std::stringstream &stringstream)
+void Logger::printBasicInfo(const InfoLevel &level, std::stringstream &stringstream)
 {
     stringstream << "[";
     switch (level)
@@ -61,12 +64,12 @@ void logger::printBasicInfo(const InfoLevel &level, std::stringstream &stringstr
     stringstream << "]";
 }
 
-void logger::unlockWriting()
+void Logger::unlockWriting()
 {
     writeLock = false;
 }
 
-void logger::lockWriting()
+void Logger::lockWriting()
 {
     while (writeLock)
     {
@@ -75,29 +78,20 @@ void logger::lockWriting()
     writeLock = true;
 }
 
-std::string logger::toString(const std::wstring &wstring)
+std::ofstream *Logger::openLogFile()
 {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    auto string(converter.to_bytes(wstring));
-    return string;
-}
-
-std::ofstream *logger::openLogFile()
-{
-    if (!packageManager::getInstance())
-        return nullptr;
     if (logFileName.empty())
     {
-        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::now();
-        std::time_t timeT = std::chrono::system_clock::to_time_t(timePoint);
-        std::string timeString(std::ctime(&timeT));
-
-        findAndDelete(timeString, " ");
-        findAndDelete(timeString, ":");
-        findAndDelete(timeString, "\n");
-
-        logFileName = packageManager::getInstance()->getUserDataDir() + "/" + timeString + ".log";
+        if (!PackageManager::getInstance() && logFileDir.empty())
+        {
+            return nullptr;
+        } else if (logFileDir.empty())
+        {
+            logFileDir = PackageManager::getInstance()->getUserDataDir();
+        }
+        initialLogFileName();
     }
+
     std::ofstream *ofstream = new std::ofstream(logFileName, std::ios_base::out | std::ios_base::app);
     if (ofstream->is_open())
     {
@@ -109,7 +103,20 @@ std::ofstream *logger::openLogFile()
     }
 }
 
-void logger::findAndDelete(std::string &timeString, const std::string &toReplace)
+void Logger::initialLogFileName()
+{
+    std::chrono::_V2::system_clock::time_point timePoint = std::chrono::_V2::system_clock::now();
+    time_t timeT = std::chrono::_V2::system_clock::to_time_t(timePoint);
+    std::__cxx11::string timeString(ctime(&timeT));
+
+    findAndDelete(timeString, " ");
+    findAndDelete(timeString, ":");
+    findAndDelete(timeString, "\n");
+
+    logFileName = logFileDir + "/" + timeString + ".log";
+}
+
+void Logger::findAndDelete(std::string &timeString, const std::string &toReplace)
 {
     auto position = timeString.find(toReplace);
     while (position != std::string::npos)
@@ -117,4 +124,16 @@ void logger::findAndDelete(std::string &timeString, const std::string &toReplace
         timeString.replace(position, std::__cxx11::string(toReplace).length(), "");
         position = timeString.find(toReplace);
     }
+}
+
+void Logger::setLogFileDir(std::wstring path)
+{
+    setLogFileDir(Utilities::toString(path));
+}
+
+void Logger::setLogFileDir(std::string path)
+{
+    logFileDir = path;
+    if(logFileDir.find("SERVANTConfig") == std::string::npos)
+        logFileDir += "/SERVANTConfig";
 }

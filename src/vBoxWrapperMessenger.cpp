@@ -1,16 +1,16 @@
-#include "vBoxWrapperMessenger.hpp"
+#include "VBoxWrapperMessenger.hpp"
 #include <thread>
 
-vBoxWrapperMessenger::vBoxWrapperMessenger(tcp::socket* socket):socket(socket)
+VBoxWrapperMessenger::VBoxWrapperMessenger(tcp::socket* socket):socket(socket)
 {
     locked = false;
 }
 
-vBoxWrapperMessenger::~vBoxWrapperMessenger()
+VBoxWrapperMessenger::~VBoxWrapperMessenger()
 {
 }
 
-void vBoxWrapperMessenger::send(std::wstring wstring) const
+void VBoxWrapperMessenger::send(std::wstring wstring) const
 {
     if (!socket)
     {
@@ -19,7 +19,7 @@ void vBoxWrapperMessenger::send(std::wstring wstring) const
     asio::write(*socket, asio::buffer(wstring));
 }
 
-std::wstring vBoxWrapperMessenger::receive()
+std::wstring VBoxWrapperMessenger::receive()
 {
     if (!socket)
     {
@@ -37,7 +37,7 @@ std::wstring vBoxWrapperMessenger::receive()
     return received.substr(0, received.find(L'\0'));
 }
 
-std::wstring vBoxWrapperMessenger::message(std::wstring toSend)
+std::wstring VBoxWrapperMessenger::message(std::wstring toSend)
 {
     while(locked)
     {
@@ -52,7 +52,7 @@ std::wstring vBoxWrapperMessenger::message(std::wstring toSend)
     return returnValue;
 }
 
-std::wstring vBoxWrapperMessenger::machineMessage(std::wstring machineNameOrId, std::wstring toSend)
+std::wstring VBoxWrapperMessenger::machineMessage(std::wstring machineNameOrId, std::wstring toSend)
 {
     while(locked)
     {

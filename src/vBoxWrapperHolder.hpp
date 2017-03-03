@@ -2,25 +2,25 @@
 #define SERVANTBASE_VBOXWRAPPERHOLDER_H
 
 #include <string>
-#include "programHolder.hpp"
+#include "ProgramHolder.hpp"
 
-class vBoxWrapperHolder
+class VBoxWrapperHolder
 {
 public:
-    vBoxWrapperHolder();
-    vBoxWrapperHolder(std::string path);
-    ~vBoxWrapperHolder();
+    VBoxWrapperHolder();
+    VBoxWrapperHolder(std::string path);
+    ~VBoxWrapperHolder();
     void start();
     bool isRunning();
-    static vBoxWrapperHolder* getInstance();
+    static VBoxWrapperHolder* getInstance();
 private:
     std::string vBoxWrapperPath;
-    std::string className = "vBoxWrapperHolder";
+    std::string className = "VBoxWrapperHolder";
     bool wrapperRunning = false;
     void workerThread();
     FILE *consoleOutputPipe;
-    static vBoxWrapperHolder* instance;
-    programHolder* vBoxWrapper = nullptr;
+    static VBoxWrapperHolder* instance;
+    ProgramHolder* vBoxWrapper = nullptr;
 };
 
 

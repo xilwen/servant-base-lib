@@ -1,11 +1,11 @@
 #include <stdexcept>
 #include <thread>
-#include "programHolder.hpp"
-#include "logger.hpp"
+#include "ProgramHolder.hpp"
+#include "Logger.hpp"
 
-programHolder::programHolder()
+ProgramHolder::ProgramHolder()
 {
-    logger::log(className, __func__, InfoLevel::INFO, className + " initializing...");
+    Logger::log(className, __func__, InfoLevel::INFO, className + " initializing...");
     securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
     securityAttributes.bInheritHandle = true;
     securityAttributes.lpSecurityDescriptor = nullptr;
@@ -15,32 +15,32 @@ programHolder::programHolder()
     CreatePipe(&childStdInRead, &childStdInWrite, &securityAttributes, 0);
     SetHandleInformation(childStdInWrite, HANDLE_FLAG_INHERIT, 0);
     ZeroMemory(&processInformation, sizeof(processInformation));
-    logger::log(className, __func__, InfoLevel::INFO, className + " initialized.");
+    Logger::log(className, __func__, InfoLevel::INFO, className + " initialized.");
 }
 
-programHolder::~programHolder()
+ProgramHolder::~ProgramHolder()
 {
-    logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
+    Logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
     CloseHandle(childStdInWrite);
     CloseHandle(childStdOutRead);
     CloseHandle(processInformation.hProcess);
     CloseHandle(processInformation.hThread);
-    logger::log(className, __func__, InfoLevel::INFO, className + " destructed.");
+    Logger::log(className, __func__, InfoLevel::INFO, className + " destructed.");
 }
 
-void programHolder::setCmdLine(const std::string &cmdLine)
+void ProgramHolder::setCmdLine(const std::string &cmdLine)
 {
     this->cmdLine = cmdLine;
 }
 
-void programHolder::run()
+void ProgramHolder::run()
 {
     if (isRunning())
     {
-        logger::log(className, __func__, InfoLevel::INFO, cmdLine + " is already running! Rejected.");
+        Logger::log(className, __func__, InfoLevel::INFO, cmdLine + " is already running! Rejected.");
         return;
     }
-    logger::log(className, __func__, InfoLevel::INFO, "Trying to launch " + cmdLine);
+    Logger::log(className, __func__, InfoLevel::INFO, "Trying to launch " + cmdLine);
     STARTUPINFO startupinfo;
     int succeed(false);
 
@@ -58,27 +58,27 @@ void programHolder::run()
 
     if (!succeed)
         throw std::runtime_error("Create Process Failed");
-    std::thread stdOutReadThread(&programHolder::stdOutPipeRunner, this);
+    std::thread stdOutReadThread(&ProgramHolder::stdOutPipeRunner, this);
     stdOutReadThread.detach();
 }
 
-std::string *programHolder::getStdOut()
+std::string *ProgramHolder::getStdOut()
 {
     return &stdOut;
 }
 
-void programHolder::appendToStdIn(std::string in)
+void ProgramHolder::appendToStdIn(std::string in)
 {
     //TODO wait for implement
     throw std::runtime_error("appendToStdIn has not been implemented");
 }
 
-std::string programHolder::getCmdLine()
+std::string ProgramHolder::getCmdLine()
 {
     return cmdLine;
 }
 
-bool programHolder::isRunning()
+bool ProgramHolder::isRunning()
 {
     if (processInformation.hProcess == nullptr)
         return false;
@@ -87,7 +87,7 @@ bool programHolder::isRunning()
     return (STILL_ACTIVE == exitCode);
 }
 
-void programHolder::stdOutPipeRunner()
+void ProgramHolder::stdOutPipeRunner()
 {
     DWORD numberOfBytesRead;
     char buffer[BUFFERSIZE];
@@ -105,7 +105,7 @@ void programHolder::stdOutPipeRunner()
     }
 }
 
-void programHolder::stdInPipeRunner()
+void ProgramHolder::stdInPipeRunner()
 {
     //TODO wait for implement
 }

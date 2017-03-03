@@ -1,20 +1,20 @@
 #include <cmath>
 #include <chrono>
-#include "firstTimeUtilities.hpp"
+#include "FirstTimeUtilities.hpp"
 #include "PerformanceManager.hpp"
-#include "vBoxWrapperClient.hpp"
+#include "VBoxWrapperClient.hpp"
 
-firstTimeUtilities::firstTimeUtilities()
+FirstTimeUtilities::FirstTimeUtilities()
 {
 
 }
 
-firstTimeUtilities::~firstTimeUtilities()
+FirstTimeUtilities::~FirstTimeUtilities()
 {
 
 }
 
-void firstTimeUtilities::runProcessorTest()
+void FirstTimeUtilities::runProcessorTest()
 {
     //euler's Pi algorithm, in Core i3-4130 it takes about 7 seconds
     //TODO timer start
@@ -31,13 +31,13 @@ void firstTimeUtilities::runProcessorTest()
     PerformanceManager::getInstance()->setProcessorRate(result);
 }
 
-void firstTimeUtilities::runMemoryTest()
+void FirstTimeUtilities::runMemoryTest()
 {
     PerformanceManager::getInstance()->setMemoryRate(
-            std::stoi(vBoxWrapperClient::getInstance()->message()->message(L"get systemTotalRAM")));
+            std::stoi(VBoxWrapperClient::getInstance()->message()->message(L"get systemTotalRAM")));
 }
 
-void firstTimeUtilities::runDiskTest()
+void FirstTimeUtilities::runDiskTest()
 {
     //TODO implement this
     PerformanceManager::getInstance()->setDiskRate(100);

@@ -2,11 +2,11 @@
 #define TESTEXE_FIRSTTIMEUTILITIES_H
 
 
-class firstTimeUtilities
+class FirstTimeUtilities
 {
 public:
-    firstTimeUtilities();
-    ~firstTimeUtilities();
+    FirstTimeUtilities();
+    ~FirstTimeUtilities();
     static void runProcessorTest();
     static void runMemoryTest();
     static void runDiskTest();

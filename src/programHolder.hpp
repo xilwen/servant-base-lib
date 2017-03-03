@@ -5,12 +5,12 @@
 #include <windows.h>
 #include <string>
 
-class programHolder
+class ProgramHolder
 {
 public:
-    programHolder();
+    ProgramHolder();
 
-    virtual ~programHolder();
+    virtual ~ProgramHolder();
 
     void setCmdLine(const std::string &cmdLine);
 
@@ -26,7 +26,7 @@ public:
 
 private:
     const unsigned long BUFFERSIZE = 4096;
-    const std::string className= "programHolder";
+    const std::string className= "ProgramHolder";
     HANDLE childStdInWrite,
             childStdInRead,
             childStdOutWrite,

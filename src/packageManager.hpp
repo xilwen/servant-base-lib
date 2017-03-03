@@ -4,18 +4,18 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include "VirtualMachine.hpp"
-#include "vBoxWrapperClient.hpp"
+#include "VBoxWrapperClient.hpp"
 
 namespace fs = std::experimental::filesystem;
 
-class packageManager
+class PackageManager
 {
 public:
-    packageManager() = delete;
+    PackageManager() = delete;
 
-    packageManager(std::wstring userHomePath, vBoxWrapperClient *client);
+    PackageManager(std::wstring userHomePath, VBoxWrapperClient *client);
 
-    ~packageManager();
+    ~PackageManager();
 
     std::wstring importOVA(std::wstring path);
 
@@ -37,7 +37,7 @@ public:
 
     bool isFirstTime();
 
-    static packageManager *getInstance();
+    static PackageManager *getInstance();
 
     std::string getRemoteServiceHost();
 
@@ -47,9 +47,9 @@ private:
     std::string machineDataPath;
     std::wfstream machineDataFileStream;
     std::vector<VirtualMachine> machines;
-    vBoxWrapperClient *client;
+    VBoxWrapperClient *client;
     bool firstTime;
-    static packageManager *instance;
+    static PackageManager *instance;
 
     void initHomePath(std::wstring &userHomePath);
 

@@ -1,19 +1,19 @@
-#include "vBoxWrapperClient.hpp"
-#include "vBoxWrapperHolder.hpp"
-#include "logger.hpp"
+#include "VBoxWrapperClient.hpp"
+#include "VBoxWrapperHolder.hpp"
+#include "Logger.hpp"
 #include <experimental/filesystem>
 #include <thread>
 
 namespace fs = std::experimental::filesystem;
 
-vBoxWrapperHolder *vBoxWrapperHolder::instance(nullptr);
+VBoxWrapperHolder *VBoxWrapperHolder::instance(nullptr);
 
-vBoxWrapperHolder::vBoxWrapperHolder()
+VBoxWrapperHolder::VBoxWrapperHolder()
 {
     fs::path defaultPath(fs::current_path().string() + std::string("/vboxWrapper.exe"));
     if (!fs::exists(defaultPath))
     {
-        logger::log("vBoxWrapperHolder", __func__, InfoLevel::WARNING,
+        Logger::log("VBoxWrapperHolder", __func__, InfoLevel::WARNING,
                     "Can not start vBoxWrapper server from " + defaultPath.string());
 //        TODO find a better way
 //        throw std::runtime_error("Can not find vboxWrapper executable, ask GUI to provide it");
@@ -21,38 +21,38 @@ vBoxWrapperHolder::vBoxWrapperHolder()
     }
     vBoxWrapperPath = defaultPath.string();
     //TODO extract to new function
-    logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO,
+    Logger::log("VBoxWrapperHolder", __func__, InfoLevel::INFO,
                 "vBoxWrapper's default path is" + defaultPath.string());
     instance = this;
 }
 
-vBoxWrapperHolder::vBoxWrapperHolder(std::string path)
+VBoxWrapperHolder::VBoxWrapperHolder(std::string path)
 {
     if (!fs::exists(path))
     {
-        logger::log("vBoxWrapperHolder", __func__, InfoLevel::WARNING, "Can not start vBoxWrapper server from " + path);
+        Logger::log("VBoxWrapperHolder", __func__, InfoLevel::WARNING, "Can not start vBoxWrapper server from " + path);
         return;
 //        throw std::runtime_error("Can not find vboxWrapper executable, ask GUI to provide it");
     }
     vBoxWrapperPath = path;
-    logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, "vBoxWrapper's path is" + path);
+    Logger::log("VBoxWrapperHolder", __func__, InfoLevel::INFO, "vBoxWrapper's path is" + path);
     instance = this;
 }
 
-vBoxWrapperHolder::~vBoxWrapperHolder()
+VBoxWrapperHolder::~VBoxWrapperHolder()
 {
-    logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
+    Logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
     if (isRunning())
     {
-        vBoxWrapperClient::getInstance()->message()->message(L"exit");
+        VBoxWrapperClient::getInstance()->message()->message(L"exit");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         for (auto i = 0; i < 5 && isRunning(); ++i)
         {
-            vBoxWrapperClient::getInstance()->message()->message(L"exit");
+            VBoxWrapperClient::getInstance()->message()->message(L"exit");
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             if (i == 4 && isRunning())
             {
-                logger::log("vBoxWrapperHolder", __func__, InfoLevel::ERR, "Can not stop vBoxWrapperClient normally!");
+                Logger::log("VBoxWrapperHolder", __func__, InfoLevel::ERR, "Can not stop VBoxWrapperClient normally!");
             }
         }
     }
@@ -63,14 +63,14 @@ vBoxWrapperHolder::~vBoxWrapperHolder()
     instance = nullptr;
 }
 
-bool vBoxWrapperHolder::isRunning()
+bool VBoxWrapperHolder::isRunning()
 {
     if (!vBoxWrapper)
         return false;
     return vBoxWrapper->isRunning();
 }
 
-void vBoxWrapperHolder::workerThread()
+void VBoxWrapperHolder::workerThread()
 {
     while (isRunning())
     {
@@ -78,7 +78,7 @@ void vBoxWrapperHolder::workerThread()
         {
             //TODO Solve conflicts
             vBoxWrapper->getStdOut()->resize(vBoxWrapper->getStdOut()->size() - 1);
-            logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper->getStdOut());
+            Logger::log("VBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper->getStdOut());
             vBoxWrapper->getStdOut()->clear();
         }
         std::this_thread::yield();
@@ -87,11 +87,11 @@ void vBoxWrapperHolder::workerThread()
     //TODO implement exit code
 }
 
-void vBoxWrapperHolder::start()
+void VBoxWrapperHolder::start()
 {
     if (isRunning() || vBoxWrapperPath.empty())
         return;
-    vBoxWrapper = new programHolder();
+    vBoxWrapper = new ProgramHolder();
     vBoxWrapper->setCmdLine(vBoxWrapperPath.c_str());
     vBoxWrapper->run();
     if (!isRunning())
@@ -99,12 +99,12 @@ void vBoxWrapperHolder::start()
         throw std::runtime_error("Can not start VBoxWrapper process");
     }
     //TODO security check
-    logger::log("vBoxWrapperHolder", __func__, InfoLevel::INFO, "starting vBoxWrapper");
+    Logger::log("VBoxWrapperHolder", __func__, InfoLevel::INFO, "starting vBoxWrapper");
     wrapperRunning = true;
-    std::thread(&vBoxWrapperHolder::workerThread, this).detach();
+    std::thread(&VBoxWrapperHolder::workerThread, this).detach();
 }
 
-vBoxWrapperHolder *vBoxWrapperHolder::getInstance()
+VBoxWrapperHolder *VBoxWrapperHolder::getInstance()
 {
     if (instance)
         return instance;
