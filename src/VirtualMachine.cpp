@@ -1,7 +1,13 @@
 #include "VirtualMachine.hpp"
 #include "VBoxWrapperClient.hpp"
+#include "PackageManager.hpp"
 
 VirtualMachine::VirtualMachine()
+{
+
+}
+
+VirtualMachine::~VirtualMachine()
 {
 
 }
@@ -39,5 +45,50 @@ std::wstring VirtualMachine::sendPowerOffSignal()
 void VirtualMachine::rename(std::wstring newName)
 {
     VBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"set machineName " + newName);
+}
 
+VirtualMachineState VirtualMachine::getStatus()
+{
+    auto result = VBoxWrapperClient::getInstance()->message()->machineMessage(uuid, L"get machineState");
+    if (result == L"PoweredOff")
+    {
+        return VirtualMachineState::PoweredOff;
+    }
+    if (result == L"Running")
+    {
+        return VirtualMachineState::Running;
+    }
+    if (result == L"Aborted")
+    {
+        return VirtualMachineState::Aborted;
+    }
+    if (result == L"Starting")
+    {
+        return VirtualMachineState::Starting;
+    }
+    if (result == L"Stopping")
+    {
+        return VirtualMachineState::Stopping;
+    } else
+    {
+        return VirtualMachineState::Unknown;
+    }
+}
+
+VirtualMachine *VirtualMachine::getVirtualMachine(const std::wstring &nameOrUuid)
+{
+    std::vector<VirtualMachine> *machines = PackageManager::getInstance()->getMachines();
+    for (VirtualMachine x : *machines)
+    {
+        if (x.getName() == nameOrUuid || x.getUuid() == nameOrUuid)
+        {
+            return x.getInstance();
+        }
+    }
+    return nullptr;
+}
+
+VirtualMachine *VirtualMachine::getInstance()
+{
+    return this;
 }

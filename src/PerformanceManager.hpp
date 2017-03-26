@@ -25,11 +25,15 @@ public:
 
     static PerformanceManager *getInstance();
 
+    void writeDataToFile();
+
 private:
     int processorRate;
     int memoryRate;
     int diskRate;
     static PerformanceManager *instance;
+
+
 };
 
 

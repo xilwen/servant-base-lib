@@ -11,6 +11,7 @@ include_directories(../servant-dependencies/asio-1.10.6/include)
 # libcurl
 link_directories("../servant-dependencies/curl-7.53.1/lib")
 include_directories("../servant-dependencies/curl-7.53.1/include/curl")
+include_directories("../servant-dependencies/nlohmann-json")
 include_directories(./src)
 
 add_definitions(-DASIO_STANDALONE -DCURL_STATICLIB)
@@ -24,7 +25,7 @@ set(SOURCE_FILES
         src/HtmlFileDownloader.cpp
         src/VBoxWrapperHolder.cpp
         src/FirstTimeUtilities.cpp
-        src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp)
+        src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp src/ProfileManager.cpp src/ProfileManager.hpp)
 
 add_library(SERVANTBase ${SOURCE_FILES})
 target_link_libraries(SERVANTBase stdc++fs curl ws2_32 wldap32)

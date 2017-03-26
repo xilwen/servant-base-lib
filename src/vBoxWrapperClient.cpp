@@ -18,13 +18,20 @@ void VBoxWrapperClient::init()
     *endpoint_iterator = resolver.resolve(query);
 }
 
-void VBoxWrapperClient::waitForPortOpen()
+void VBoxWrapperClient::waitForPortOpen(int port)
 {
     //TODO make it detect other than FTP Port
     asio::io_service io_service;
     tcp::resolver resolver(io_service);
-    tcp::resolver::query query("localhost", "ftp");
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+    tcp::resolver::query *query = nullptr;
+    if (port == 21)
+    {
+        query = new tcp::resolver::query("localhost", "ftp");
+    } else if (port == 80)
+    {
+        query = new tcp::resolver::query("localhost", "http");
+    }
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(*query);
     tcp::resolver::iterator end;
 
     tcp::socket socket(io_service);
@@ -33,10 +40,13 @@ void VBoxWrapperClient::waitForPortOpen()
     {
         socket.close();
         socket.connect(*endpoint_iterator++, error);
+        std::vector<wchar_t> buf;
+        socket.read_some(asio::buffer(buf), error);
     }
-    asio::streambuf response;
+//    asio::streambuf response;
     //TODO find a better way
-    asio::read_until(socket, response, "\n", lastError);
+//    asio::read_until(socket, response, "\n", lastError);
+
 }
 
 void VBoxWrapperClient::connect()

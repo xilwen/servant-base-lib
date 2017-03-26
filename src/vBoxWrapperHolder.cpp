@@ -44,6 +44,7 @@ VBoxWrapperHolder::~VBoxWrapperHolder()
     Logger::log(className, __func__, InfoLevel::INFO, className + " destruction started.");
     if (isRunning())
     {
+        VBoxWrapperClient::getInstance()->message()->stopIdleTimer();
         VBoxWrapperClient::getInstance()->message()->message(L"exit");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         for (auto i = 0; i < 5 && isRunning(); ++i)
@@ -79,7 +80,7 @@ void VBoxWrapperHolder::workerThread()
             //TODO Solve conflicts
             vBoxWrapper->getStdOut()->resize(vBoxWrapper->getStdOut()->size() - 1);
             Logger::log("VBoxWrapperHolder", __func__, InfoLevel::INFO, *vBoxWrapper->getStdOut());
-            vBoxWrapper->getStdOut()->clear();
+            vBoxWrapper->clearStdOut();
         }
         std::this_thread::yield();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

@@ -73,21 +73,26 @@ PerformanceManager::PerformanceManager()
 
 PerformanceManager::~PerformanceManager()
 {
-    std::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
+    writeDataToFile();
+    instance = nullptr;
+}
+
+void PerformanceManager::writeDataToFile()
+{
+    std::__cxx11::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
     std::ofstream perfDataOfstream;
-    perfDataOfstream.open(perfDataPath, std::ios::trunc | std::ios::out);
+    perfDataOfstream.open(perfDataPath, std::ios_base::trunc | std::ios_base::out);
     if (perfDataOfstream.is_open())
     {
-        perfDataOfstream << std::to_string(processorRate) << std::endl << std::to_string(memoryRate) << std::endl <<
-                         std::to_string(diskRate);
+        perfDataOfstream << std::__cxx11::to_string(processorRate) << std::endl << std::__cxx11::to_string(memoryRate) << std::endl <<
+                         std::__cxx11::to_string(diskRate);
         perfDataOfstream.close();
 
     } else
     {
-        Logger::log("PerformanceManager", __func__, InfoLevel::WARNING,
+        Logger::log("PerformanceManager", __func__, WARNING,
                     "Can not write performance data, changes will not be saved.");
     }
-    instance = nullptr;
 }
 
 PerformanceManager *PerformanceManager::getInstance()

@@ -1,22 +1,35 @@
 #include "VBoxWrapperMessenger.hpp"
+#include "Logger.hpp"
+#include "VBoxWrapperHolder.hpp"
 #include <thread>
 
-VBoxWrapperMessenger::VBoxWrapperMessenger(tcp::socket* socket):socket(socket)
+VBoxWrapperMessenger::VBoxWrapperMessenger(tcp::socket *socket) : socket(socket)
 {
     locked = false;
+    runTimer = true;
+    std::thread(&VBoxWrapperMessenger::timerRunner, this).detach();
 }
 
 VBoxWrapperMessenger::~VBoxWrapperMessenger()
 {
+    runTimer = false;
 }
 
-void VBoxWrapperMessenger::send(std::wstring wstring) const
+void VBoxWrapperMessenger::send(std::wstring wstring)
 {
     if (!socket)
     {
         throw std::runtime_error("Send Response failed because there is no socket.");
     }
-    asio::write(*socket, asio::buffer(wstring));
+    try
+    {
+        asio::write(*socket, asio::buffer(wstring));
+    }catch(const std::exception& e)
+    {
+        Logger::log("VBoxWrapperMessenger", __func__, InfoLevel::ERR, wstring);
+        Logger::log("VBoxWrapperMessenger", __func__, InfoLevel::ERR, e.what());
+    }
+    resetTimer();
 }
 
 std::wstring VBoxWrapperMessenger::receive()
@@ -33,13 +46,14 @@ std::wstring VBoxWrapperMessenger::receive()
     {
         wstringstream << *it;
     }
+    resetTimer();
     auto received(wstringstream.str());
     return received.substr(0, received.find(L'\0'));
 }
 
 std::wstring VBoxWrapperMessenger::message(std::wstring toSend)
 {
-    while(locked)
+    while (locked)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -54,15 +68,15 @@ std::wstring VBoxWrapperMessenger::message(std::wstring toSend)
 
 std::wstring VBoxWrapperMessenger::machineMessage(std::wstring machineNameOrId, std::wstring toSend)
 {
-    while(locked)
+    while (locked)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     locked = true;
 
-    send(L"select search "+ machineNameOrId);
+    send(L"select search " + machineNameOrId);
     auto machineSelectionResult = receive();
-    if(!machineSelectionResult.find(L"SUCCESS"))
+    if (!machineSelectionResult.find(L"SUCCESS"))
     {
         locked = false;
         return machineSelectionResult;
@@ -73,4 +87,44 @@ std::wstring VBoxWrapperMessenger::machineMessage(std::wstring machineNameOrId, 
 
     locked = false;
     return returnValue;
+}
+
+void VBoxWrapperMessenger::timerRunner()
+{
+    while (runTimer)
+    {
+        try
+        {
+            if (!VBoxWrapperHolder::getInstance() || !VBoxWrapperHolder::getInstance()->isRunning())
+            {
+                break;
+            }
+        }
+        catch(const std::runtime_error &runtimeError)
+        {
+            Logger::log("VBoxWrapperMessenger", __func__, InfoLevel::ERR, "No VBoxWrapperHolder is running?");
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        ++idleTime;
+        if (idleTime > 5 )
+        {
+            message(L"keepAlive");
+            resetTimer();
+        }
+    }
+}
+
+void VBoxWrapperMessenger::resetTimer()
+{
+    idleTime = 0;
+}
+
+int VBoxWrapperMessenger::getIdleTime()
+{
+    return idleTime;
+}
+
+void VBoxWrapperMessenger::stopIdleTimer()
+{
+    runTimer = false;
 }

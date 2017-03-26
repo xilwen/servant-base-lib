@@ -55,9 +55,13 @@ void ProgramHolder::run()
     succeed = CreateProcess(nullptr, LPSTR(cmdLine.c_str()), nullptr, nullptr, true, CREATE_NO_WINDOW, nullptr, nullptr,
                             &startupinfo,
                             &processInformation);
-
     if (!succeed)
+    {
+        Logger::log(className, __func__, InfoLevel::INFO, "Launch failed because " + std::to_string(GetLastError()));
         throw std::runtime_error("Create Process Failed");
+        return;
+    }
+    running = true;
     std::thread stdOutReadThread(&ProgramHolder::stdOutPipeRunner, this);
     stdOutReadThread.detach();
 }
@@ -67,12 +71,6 @@ std::string *ProgramHolder::getStdOut()
     return &stdOut;
 }
 
-void ProgramHolder::appendToStdIn(std::string in)
-{
-    //TODO wait for implement
-    throw std::runtime_error("appendToStdIn has not been implemented");
-}
-
 std::string ProgramHolder::getCmdLine()
 {
     return cmdLine;
@@ -80,32 +78,27 @@ std::string ProgramHolder::getCmdLine()
 
 bool ProgramHolder::isRunning()
 {
-    if (processInformation.hProcess == nullptr)
-        return false;
-    unsigned long exitCode;
-    GetExitCodeProcess(processInformation.hProcess, &exitCode);
-    return (STILL_ACTIVE == exitCode);
+    return running;
 }
 
 void ProgramHolder::stdOutPipeRunner()
 {
-    DWORD numberOfBytesRead;
-    char buffer[BUFFERSIZE];
-    int succeed(false);
-    while (isRunning())
+    GetExitCodeProcess(processInformation.hProcess, &exitCode);
+    while (exitCode == STILL_ACTIVE)
     {
-        succeed = ReadFile(childStdOutRead, buffer, BUFFERSIZE, &numberOfBytesRead, nullptr);
+        DWORD numberOfBytesRead;
+        char buffer[BUFFERSIZE] = {0};
+        ReadFile(childStdOutRead, buffer, BUFFERSIZE, &numberOfBytesRead, nullptr);
         stdOut += std::string(buffer);
         std::this_thread::yield();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (strstr(buffer, "exit") != nullptr || !succeed || numberOfBytesRead == 0)
-        {
-            break;
-        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        GetExitCodeProcess(processInformation.hProcess, &exitCode);
     }
+    running = false;
+    Logger::log(className, __func__, InfoLevel::INFO, "Process Ended. Return Code = " + std::to_string(exitCode));
 }
 
-void ProgramHolder::stdInPipeRunner()
+void ProgramHolder::clearStdOut()
 {
-    //TODO wait for implement
+    stdOut.clear();
 }

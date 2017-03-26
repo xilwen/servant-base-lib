@@ -22,11 +22,11 @@ public:
 
     std::string *getStdOut();
 
-    void appendToStdIn(std::string in);
+    void clearStdOut();
 
 private:
     const unsigned long BUFFERSIZE = 4096;
-    const std::string className= "ProgramHolder";
+    const std::string className = "ProgramHolder";
     HANDLE childStdInWrite,
             childStdInRead,
             childStdOutWrite,
@@ -35,10 +35,10 @@ private:
     PROCESS_INFORMATION processInformation;
     std::string cmdLine,
             stdOut;
+    DWORD exitCode;
+    bool running = false;
 
     void stdOutPipeRunner();
-
-    void stdInPipeRunner();
 };
 
 

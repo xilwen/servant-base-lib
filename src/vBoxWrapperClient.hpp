@@ -21,7 +21,7 @@ public:
     ~VBoxWrapperClient();
     void connect();
     void handShake();
-    void waitForPortOpen();
+    void waitForPortOpen(int port);
     VBoxWrapperMessenger* message();
 
     static VBoxWrapperClient *getInstance();
