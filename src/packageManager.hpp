@@ -11,9 +11,7 @@ namespace fs = std::experimental::filesystem;
 class PackageManager
 {
 public:
-    PackageManager() = delete;
-
-    PackageManager(std::wstring userHomePath, VBoxWrapperClient *client);
+    PackageManager();
 
     ~PackageManager();
 
@@ -31,29 +29,15 @@ public:
 
     std::vector<VirtualMachine> *getMachines();
 
-    std::string getUserDataDir();
-
-    std::wstring getUserDataDirWstring();
-
-    bool isFirstTime();
-
     static PackageManager *getInstance();
 
-    std::string getRemoteServiceHost();
-
 private:
-    fs::path userHomeDir,
-            userDataDir;
+    fs::path userDataDir;
     std::string machineDataPath;
-    std::wfstream machineDataFileStream;
+    std::fstream machineDataFileStream;
     std::vector<VirtualMachine> machines;
-    VBoxWrapperClient *client;
-    bool firstTime;
+    VBoxWrapperClient *vBoxWrapperClient;
     static PackageManager *instance;
-
-    void initHomePath(std::wstring &userHomePath);
-
-    void initDataDir();
 
     void loadMachinesArray();
 

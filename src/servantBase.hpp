@@ -1,6 +1,7 @@
 #ifndef TESTEXE_BASE_H
 #define TESTEXE_BASE_H
 
+#include "ProfileManager.hpp"
 #include "FirstTimeUtilities.hpp"
 #include "HtmlFileDownloader.hpp"
 #include "Logger.hpp"
@@ -29,6 +30,8 @@ public:
 
     PerformanceManager *getPerformanceManager() const;
 
+    ProfileManager *getProfileManager() const;
+
     void resetBase();
 
 private:
@@ -39,6 +42,7 @@ private:
     VBoxWrapperClient *vBoxWrapperClient;
     PackageManager *packageManager;
     PerformanceManager *performanceManager;
+    ProfileManager *profileManager;
     bool successFlag = false;
 
 

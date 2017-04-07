@@ -16,6 +16,7 @@ ServantBase::ServantBase()
 void ServantBase::initialWithLocalWrapper()
 {
     Logger::setLogFileDir(WindowsUtilities::getHomePath());
+    profileManager = new ProfileManager(WindowsUtilities::getHomePath());
     try
     {
         vBoxWrapperHolder = new VBoxWrapperHolder(
@@ -33,7 +34,7 @@ void ServantBase::initialWithLocalWrapper()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     vBoxWrapperClient->handShake();
-    packageManager = new PackageManager(WindowsUtilities::getHomePath(), vBoxWrapperClient);
+    packageManager = new PackageManager;
     performanceManager = new PerformanceManager;
     successFlag = true;
 }
@@ -48,6 +49,8 @@ void ServantBase::resetBase()
         delete packageManager;
     if (vBoxWrapperClient)
         delete vBoxWrapperClient;
+    if (profileManager)
+        delete profileManager;
     successFlag = false;
 }
 
@@ -74,4 +77,9 @@ PackageManager *ServantBase::getPackageManager() const
 PerformanceManager *ServantBase::getPerformanceManager() const
 {
     return performanceManager;
+}
+
+ProfileManager *ServantBase::getProfileManager() const
+{
+    return profileManager;
 }

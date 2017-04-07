@@ -1,6 +1,7 @@
 #ifndef TESTEXE_PERFORMANCEMANAGER_H
 #define TESTEXE_PERFORMANCEMANAGER_H
 
+#include <iostream>
 
 class PerformanceManager
 {
@@ -28,6 +29,7 @@ public:
     void writeDataToFile();
 
 private:
+    std::string userDataDir;
     int processorRate;
     int memoryRate;
     int diskRate;

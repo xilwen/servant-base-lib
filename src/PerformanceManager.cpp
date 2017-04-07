@@ -1,45 +1,18 @@
 #include "PerformanceManager.hpp"
 #include "PackageManager.hpp"
 #include "Logger.hpp"
+#include "ProfileManager.hpp"
+#include "ProfileManager.hpp"
 
 namespace fs = std::experimental::filesystem;
 
 PerformanceManager *PerformanceManager::instance(nullptr);
 
-int PerformanceManager::getProcessorRate()
-{
-    return processorRate;
-}
-
-int PerformanceManager::getMemoryRate()
-{
-    return memoryRate;
-}
-
-int PerformanceManager::getDiskRate()
-{
-    return diskRate;
-}
-
-void PerformanceManager::setProcessorRate(int processorRate)
-{
-    PerformanceManager::processorRate = processorRate;
-}
-
-void PerformanceManager::setMemoryRate(int memoryRate)
-{
-    PerformanceManager::memoryRate = memoryRate;
-}
-
-void PerformanceManager::setDiskRate(int diskRate)
-{
-    PerformanceManager::diskRate = diskRate;
-}
-
 PerformanceManager::PerformanceManager()
 {
     instance = this;
-    std::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
+    userDataDir = ProfileManager::getInstance()->getUserDataDirString();
+    std::string perfDataPath(userDataDir + "/perfData");
     if (fs::exists(perfDataPath))
     {
         std::ifstream perfDataIfstream;
@@ -77,14 +50,45 @@ PerformanceManager::~PerformanceManager()
     instance = nullptr;
 }
 
+int PerformanceManager::getProcessorRate()
+{
+    return processorRate;
+}
+
+int PerformanceManager::getMemoryRate()
+{
+    return memoryRate;
+}
+
+int PerformanceManager::getDiskRate()
+{
+    return diskRate;
+}
+
+void PerformanceManager::setProcessorRate(int processorRate)
+{
+    PerformanceManager::processorRate = processorRate;
+}
+
+void PerformanceManager::setMemoryRate(int memoryRate)
+{
+    PerformanceManager::memoryRate = memoryRate;
+}
+
+void PerformanceManager::setDiskRate(int diskRate)
+{
+    PerformanceManager::diskRate = diskRate;
+}
+
 void PerformanceManager::writeDataToFile()
 {
-    std::__cxx11::string perfDataPath(PackageManager::getInstance()->getUserDataDir() + "/perfData");
+    std::__cxx11::string perfDataPath(userDataDir+ "/perfData");
     std::ofstream perfDataOfstream;
     perfDataOfstream.open(perfDataPath, std::ios_base::trunc | std::ios_base::out);
     if (perfDataOfstream.is_open())
     {
-        perfDataOfstream << std::__cxx11::to_string(processorRate) << std::endl << std::__cxx11::to_string(memoryRate) << std::endl <<
+        perfDataOfstream << std::__cxx11::to_string(processorRate) << std::endl << std::__cxx11::to_string(memoryRate)
+                         << std::endl <<
                          std::__cxx11::to_string(diskRate);
         perfDataOfstream.close();
 

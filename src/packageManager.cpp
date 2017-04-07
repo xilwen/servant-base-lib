@@ -1,64 +1,38 @@
 #include "PackageManager.hpp"
 #include "Logger.hpp"
+#include "ProfileManager.hpp"
+#include <json.hpp>
+#include <boost/locale.hpp>
+
+using json = nlohmann::json;
 
 namespace fs = std::experimental::filesystem;
 
 PackageManager *PackageManager::instance(nullptr);
 
-PackageManager::PackageManager(std::wstring userHomePath, VBoxWrapperClient *client) : client(client)
+PackageManager::PackageManager()
 {
-    initHomePath(userHomePath);
-    initDataDir();
     instance = this;
+    userDataDir = ProfileManager::getInstance()->getUserDataDir();
+    vBoxWrapperClient = VBoxWrapperClient::getInstance();
     initMachineData();
 }
 
 void PackageManager::initMachineData()
 {
     std::__cxx11::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    machineDataPath = converter.to_bytes(userDataDir.wstring() + L"/MachineArray");
+    machineDataPath = converter.to_bytes(userDataDir.wstring() + L"/machines.json");
     if (!fs::exists(machineDataPath))
     {
-        Logger::log("PackageManager", __func__, INFO, "creating new machineArray.");
-        machineDataFileStream.open(machineDataPath, std::ios_base::out);
-        machineDataFileStream << L"SERVANT MachineList 0.1" << std::endl;
+        Logger::log("PackageManager", __func__, INFO, "creating new machines.json.");
+        machineDataFileStream.open(machineDataPath, std::ios::out | std::ios::trunc);
+        "[]"_json >> machineDataFileStream;
+        machineDataFileStream.close();
     } else
     {
-        Logger::log("PackageManager", __func__, INFO, "existing machineList found.");
+        Logger::log("PackageManager", __func__, INFO, "existing machines.json found.");
         loadMachinesArray();
     }
-}
-
-void PackageManager::initDataDir()
-{
-    userDataDir = userHomeDir.wstring() + std::wstring(L"SERVANTConfig");
-    if (fs::exists(userDataDir))
-    {
-        firstTime = false;
-        Logger::log("PackageManager", __func__, INFO, "Data directory exist.");
-
-    } else
-    {
-        firstTime = true;
-        std::experimental::filesystem::v1::create_directory(userDataDir);
-        Logger::log("PackageManager", __func__, INFO, "Data directory created.");
-    }
-}
-
-void PackageManager::initHomePath(std::wstring &userHomePath)
-{
-    auto backslashPos(userHomePath.find(L'\\'));
-    while (backslashPos != std::wstring::npos)
-    {
-        userHomePath.replace(backslashPos, 1, L"/");
-        backslashPos = userHomePath.find(L'\\');
-    }
-    if (userHomePath.back() != L'/')
-    {
-        userHomePath.push_back(L'/');
-    }
-    userHomeDir = userHomePath;
-    Logger::log("PackageManager", __func__, INFO, std::wstring(L"userHomePath is " + userHomePath));
 }
 
 PackageManager::~PackageManager()
@@ -78,72 +52,83 @@ void PackageManager::loadMachinesArray()
         machineDataFileStream.close();
     }
     machineDataFileStream.open(machineDataPath, std::ios::in);
-    std::wstring versionString;
-    std::getline(machineDataFileStream, versionString);
-    Logger::log("PackageManager", __func__, INFO, versionString);
+    json machineJson;
+    machineDataFileStream >> machineJson;
+    machineDataFileStream.close();
 
-    std::wstring dataString;
-    while (!machineDataFileStream.eof())
+    if (!machineJson.is_array())
     {
-        dataString.clear();
-        std::getline(machineDataFileStream, dataString);
-        auto columnFlagPos = dataString.find(L",");
-        if (columnFlagPos != std::wstring::npos)
-        {
-            auto newName(dataString.substr(0, columnFlagPos)),
-                    newUuid(dataString.substr(columnFlagPos + 1));
+        Logger::log("PackageManager", __func__, InfoLevel::ERR, L"Invalid machines.json. Nothing will be load!");
+        //TODO do something if fail
+        return;
+    }
 
-            if (VBoxWrapperClient::getInstance()->message()->message(L"select search " + newName).find(L"SUCCEED") ==
+    for (auto it = machineJson.begin(); it != machineJson.end(); ++it)
+    {
+        try
+        {
+            std::string machineUuidString = it->find("machineUuid").value(); //utf-8 string from json
+            auto machineUuidWstring(boost::locale::conv::utf_to_utf<wchar_t>(machineUuidString));
+            if (vBoxWrapperClient->message()->message(L"select search " + machineUuidWstring).find(L"SUCCEED") ==
                 std::string::npos)
             {
                 //TODO update config file
                 Logger::log("PackageManager", __func__, INFO,
-                            L"Invalid machine UUID " + newUuid + L", this machine will not be loaded.");
+                            L"Invalid machine UUID " + machineUuidWstring + L", this machine will not be loaded.");
                 continue;
             }
-
+            auto machineNameWstring(vBoxWrapperClient->message()->message(L"get machineName"));
             Logger::log("PackageManager", __func__, INFO,
-                        L"Name = " + newName + L", Uuid = " + newUuid);
+                        L"Name = " + machineNameWstring + L", Uuid = " + machineUuidWstring);
             VirtualMachine newMachine;
-            newMachine.setName(newName);
-            newMachine.setUuid(newUuid);
-
+            newMachine.setName(machineNameWstring);
+            newMachine.setUuid(machineUuidWstring);
             machines.push_back(newMachine);
-        } else
+        } catch (std::exception &e)
         {
-            Logger::log("PackageManager", __func__, INFO, L"Invalid Data, Skipped.");
+            Logger::log("PackageManager", __func__, INFO, e.what());
         }
     }
 }
 
 std::wstring PackageManager::importOVA(std::wstring path)
 {
-    return client->message()->message(L"import " + path);
+    return vBoxWrapperClient->message()->message(L"import " + path);
 }
 
 bool PackageManager::OVAImportCompleted()
 {
-    auto result = client->message()->message(L"get importStat");
+    auto result = vBoxWrapperClient->message()->message(L"get importStat");
     return (result == L"IDLE");
 }
 
 bool PackageManager::OVAImportSucceeded()
 {
-    auto resultWString = client->message()->message(L"get importSucceeded");
+    auto resultWString = vBoxWrapperClient->message()->message(L"get importSucceeded");
     auto succeeded = (resultWString == L"true");
     if (succeeded)
     {
-        auto newName(client->message()->message(L"get importedNewName"));
+        auto newName(vBoxWrapperClient->message()->message(L"get importedNewName"));
         Logger::log("PackageManager", __func__, INFO, L"New Server is named " + newName);
         if (machineDataFileStream.is_open())
         {
             machineDataFileStream.close();
-            machineDataFileStream.open(machineDataPath, std::ios::out | std::ios::app);
         }
-        machineDataFileStream << newName << L","
-                              << client->message()->machineMessage(newName, L"get machineId")
-                              << std::endl;
+        machineDataFileStream.open(machineDataPath, std::ios::in);
+        json machineJson;
+        machineDataFileStream >> machineJson;
         machineDataFileStream.close();
+
+        if (machineJson.is_array())
+        {
+            machineJson.push_back(json::object());
+            std::string newUuidString = boost::locale::conv::utf_to_utf<char>(
+                    vBoxWrapperClient->message()->machineMessage(newName, L"get machineId"));
+            machineJson.back().emplace("machineUuid", newUuidString.c_str());
+            machineDataFileStream.open(machineDataPath, std::ios::out | std::ios::trunc);
+            machineDataFileStream << machineJson;
+            machineDataFileStream.close();
+        }
         loadMachinesArray();
     }
     return succeeded;
@@ -151,23 +136,13 @@ bool PackageManager::OVAImportSucceeded()
 
 int PackageManager::OVAImportProgress()
 {
-    auto result = client->message()->message(L"get importProgress");
+    auto result = vBoxWrapperClient->message()->message(L"get importProgress");
     return std::stoi(result);
 }
 
 std::vector<VirtualMachine> *PackageManager::getMachines()
 {
     return &machines;
-}
-
-std::string PackageManager::getUserDataDir()
-{
-    return userDataDir.string();
-}
-
-std::wstring PackageManager::getUserDataDirWstring()
-{
-    return userDataDir.wstring();
 }
 
 void PackageManager::DeleteMachine(VirtualMachine *virtualMachine)
@@ -182,7 +157,7 @@ void PackageManager::DeleteMachine(const std::wstring &nameOrUuid)
     Logger::log("PackageManager", __func__, INFO,
                 L"Deleting " + nameOrUuid + L", vboxWrapper may freeze for one second.");
 //    TODO fail
-    client->message()->message(L"del " + nameOrUuid);
+    vBoxWrapperClient->message()->message(L"del " + nameOrUuid);
     for (auto it = machines.begin(); it != machines.end(); ++it)
     {
         if (it->getUuid() == nameOrUuid || it->getName() == nameOrUuid)
@@ -193,30 +168,8 @@ void PackageManager::DeleteMachine(const std::wstring &nameOrUuid)
     }
 }
 
-bool PackageManager::isFirstTime()
-{
-    return firstTime;
-}
-
 PackageManager *PackageManager::getInstance()
 {
     return instance;
 }
 
-std::string PackageManager::getRemoteServiceHost()
-{
-    std::fstream RemoteServerFileStream;
-    if(!fs::exists(getUserDataDir() + "RemoteServer"))
-    {
-        RemoteServerFileStream.open(getUserDataDir() + "RemoteServer", std::ios_base::out);
-        RemoteServerFileStream << "localhost" << std::endl;
-        RemoteServerFileStream.close();
-        return "localhost";
-    } else
-    {
-        std::string remoteHost;
-        RemoteServerFileStream.open(getUserDataDir() + "RemoteServer", std::ios_base::in);
-        RemoteServerFileStream >> remoteHost;
-        return remoteHost;
-    }
-}

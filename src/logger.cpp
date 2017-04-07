@@ -1,6 +1,7 @@
 #include "Logger.hpp"
 #include "PackageManager.hpp"
 #include "Utilities.hpp"
+#include "ProfileManager.hpp"
 #include <thread>
 #include <iomanip>
 
@@ -82,12 +83,12 @@ std::ofstream *Logger::openLogFile()
 {
     if (logFileName.empty())
     {
-        if (!PackageManager::getInstance() && logFileDir.empty())
+        if (!ProfileManager::getInstance() && logFileDir.empty())
         {
             return nullptr;
         } else if (logFileDir.empty())
         {
-            logFileDir = PackageManager::getInstance()->getUserDataDir();
+            logFileDir = ProfileManager::getInstance()->getUserDataDirString();
         }
         initialLogFileName();
     }
