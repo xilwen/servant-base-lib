@@ -12,6 +12,8 @@
 #include "VBoxWrapperHolder.hpp"
 #include "VBoxWrapperMessenger.hpp"
 #include "VirtualMachine.hpp"
+#include "ConfigManager.hpp"
+#include "MallManager.hpp"
 
 class ServantBase
 {
@@ -32,6 +34,10 @@ public:
 
     ProfileManager *getProfileManager() const;
 
+    ConfigManager *getConfigManager() const;
+
+    MallManager *getMallManager() const;
+
     void resetBase();
 
 private:
@@ -43,6 +49,9 @@ private:
     PackageManager *packageManager;
     PerformanceManager *performanceManager;
     ProfileManager *profileManager;
+    ConfigManager *configManager;
+    MallManager *mallManager;
+
     bool successFlag = false;
 
 

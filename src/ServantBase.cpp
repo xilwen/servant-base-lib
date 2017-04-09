@@ -21,7 +21,8 @@ void ServantBase::initialWithLocalWrapper()
     {
         vBoxWrapperHolder = new VBoxWrapperHolder(
                 Utilities::toString(WindowsUtilities::getHomePath()) + "/SERVANT/vBoxWrapper.exe");
-    } catch (...)
+    }
+    catch (...)
     {
         resetBase();
         return;
@@ -35,6 +36,8 @@ void ServantBase::initialWithLocalWrapper()
     }
     vBoxWrapperClient->handShake();
     packageManager = new PackageManager;
+    configManager = new ConfigManager;
+    mallManager = new MallManager;
     performanceManager = new PerformanceManager;
     successFlag = true;
 }
@@ -49,6 +52,10 @@ void ServantBase::resetBase()
         delete packageManager;
     if (vBoxWrapperClient)
         delete vBoxWrapperClient;
+    if (configManager)
+        delete configManager;
+    if (mallManager)
+        delete mallManager;
     if (profileManager)
         delete profileManager;
     successFlag = false;
@@ -82,4 +89,14 @@ PerformanceManager *ServantBase::getPerformanceManager() const
 ProfileManager *ServantBase::getProfileManager() const
 {
     return profileManager;
+}
+
+ConfigManager *ServantBase::getConfigManager() const
+{
+    return configManager;
+}
+
+MallManager *ServantBase::getMallManager() const
+{
+    return mallManager;
 }

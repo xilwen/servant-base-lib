@@ -88,9 +88,12 @@ json ProfileManager::getConfigJson()
         return getJsonFromFile(configFilePath);
     } else
     {
-        j = createJsonToFile(
-                R"({"remoteRepositoryUrl" : "http://127.0.0.1/SERVANT/repo/", "vBoxWrapperType" : "Local"})"_json,
-                configFilePath);
+        j = {
+                {"remoteRepositoryUrl", "http://127.0.0.1/SERVANT/repo/"},
+                {"vBoxWrapperType",     "Local"}
+
+        };
+        j = createJsonToFile(j, configFilePath);
     }
     return j;
 }
@@ -108,7 +111,7 @@ json ProfileManager::getMallRepositoryJson()
         return getJsonFromFile(mallRepositoryPath);
     } else
     {
-        j = createJsonToFile(json(), configFilePath);
+        j = createJsonToFile(json(), mallRepositoryPath);
     }
     return j;
 }
@@ -120,10 +123,10 @@ void ProfileManager::writeMallRepositoryJson(const json &input)
 
 void ProfileManager::initJsonFilePath()
 {
-    configFilePath = userDataDir.string() + "config.json";
-    mallRepositoryPath = userDataDir.string() + "mallRepository.json";
-    performanceFilePath = userDataDir.string() + "performance.json";
-    downloadDir = userDataDir.string() + "download/";
+    configFilePath = userDataDir.string() + "/config.json";
+    mallRepositoryPath = userDataDir.string() + "/mallRepository.json";
+    performanceFilePath = userDataDir.string() + "/performance.json";
+    downloadDir = userDataDir.string() + "/download/";
 }
 
 json ProfileManager::getPerformanceJson()
@@ -144,32 +147,38 @@ void ProfileManager::writePerformanceJson(const json &input)
     createJsonToFile(input, performanceFilePath);
 }
 
-json ProfileManager::createJsonToFile(json j, fs::path &filePath) const
+json ProfileManager::createJsonToFile(json j, fs::path &filePath)
 {
-    std::ofstream configFile;
-    configFile.open(configFilePath.string(), std::ios_base::out | std::ios_base::trunc);
-    if (configFile.is_open())
+    std::ofstream file;
+    file.open(filePath.string(), std::ios_base::out | std::ios_base::trunc);
+    if (file.is_open())
     {
-        j >> configFile;
-        configFile.close();
-        Logger::log("ProfileManager", __func__, INFO, "Created " + configFilePath.string());
+        j >> file;
+        file.close();
+        Logger::log("ProfileManager", __func__, INFO, "Created " + filePath.string());
     } else
     {
-        Logger::log("ProfileManager", __func__, INFO, "Error creating " + configFilePath.string());
+        Logger::log("ProfileManager", __func__, INFO, "Error creating " + filePath.string());
     }
     return j;
 }
 
-json ProfileManager::getJsonFromFile(fs::path &filePath) const
+json ProfileManager::getJsonFromFile(fs::path &filePath)
 {
     json j;
     std::ifstream file;
     file.open(filePath.string(), std::ios_base::in);
     if (file.is_open())
     {
-        file >> j;
+        try
+        {
+            file >> j;
+        }catch(std::exception &e)
+        {
+            Logger::log("ProfileManager", __func__, InfoLevel::ERR, e.what());
+        }
         file.close();
-        Logger::log("ProfileManager", __func__, INFO, "Read " + filePath.string());
+        Logger::log("ProfileManager", __func__, InfoLevel::INFO, "Read " + filePath.string());
     } else
     {
         Logger::log("ProfileManager", __func__, INFO, "Error reading " + filePath.string());

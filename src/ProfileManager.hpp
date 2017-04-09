@@ -59,9 +59,9 @@ private:
 
     void initJsonFilePath();
 
-    json getJsonFromFile(fs::path &filePath) const;
+    json getJsonFromFile(fs::path &filePath);
 
-    json createJsonToFile(json j, fs::path &filePath) const;
+    json createJsonToFile(json j, fs::path &filePath);
 };
 
 

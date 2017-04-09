@@ -47,13 +47,16 @@ void MallManager::getListFromRemoteServer()
         downloadMillisecondsElapsed += 5;
         if(downloadMillisecondsElapsed > 5000)
         {
-            Logger::log("MallManager", __func__, InfoLevel::ERR, "Download time exceed 5 seconds!");
+            Logger::log("MallManager", __func__, InfoLevel::ERR, "Download time exceed 5 seconds!Cancelling...");
             HtmlFileDownloader::getInstance()->cancelCurrentDownload();
         }
     }
     if(!HtmlFileDownloader::getInstance()->succeededLastTime())
     {
         Logger::log("MallManager", __func__, InfoLevel::ERR, "Download failed!");
+    } else
+    {
+        Logger::log("MallManager", __func__, InfoLevel::ERR, "Download succeed!");
     }
 }
 
@@ -72,7 +75,6 @@ void MallManager::loadLocalItemList()
             newItem.setUpdateDate(it->find("updateDate").value());
             newItem.setOperatingSystem(it->find("operatingSystem").value());
             newItem.setManagementUI(it->find("managementUI").value());
-            newItem.setManagementUI(it->find("introduction").value());
             newItem.setIntroduction(it->find("introduction").value());
             newItem.setCpuLevel(it->find("cpuLevel").value());
             newItem.setRamLevel(it->find("ramLevel").value());

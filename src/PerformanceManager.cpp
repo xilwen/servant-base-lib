@@ -12,9 +12,9 @@ PerformanceManager::PerformanceManager()
     json j = ProfileManager::getInstance()->getPerformanceJson();
     if (j.find("processorRate") != j.end() && j.find("memoryRate") != j.end() && j.find("diskRate") != j.end())
     {
-        setProcessorRate(j.find("processRate").value());
-        setMemoryRate(j.find("memoryRate").value());
-        setDiskRate(j.find("diskRate").value());
+        setProcessorRate(j.at("processorRate").get<int>());
+        setMemoryRate(j.at("memoryRate").get<int>());
+        setDiskRate(j.at("diskRate").get<int>());
     } else
     {
         Logger::log("PerformanceManager", __func__, InfoLevel::WARNING,
