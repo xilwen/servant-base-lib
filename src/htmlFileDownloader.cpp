@@ -6,6 +6,13 @@
 
 bool HtmlFileDownloader::exist(false);
 HtmlFileDownloader *HtmlFileDownloader::instance(nullptr);
+bool HtmlFileDownloader::cancelled(false);
+
+HtmlFileDownloader *HtmlFileDownloader::getInstance()
+{
+    static HtmlFileDownloader instance;
+    return &instance;
+}
 
 HtmlFileDownloader::HtmlFileDownloader()
 {
@@ -74,6 +81,7 @@ bool HtmlFileDownloader::succeededLastTime()
 void HtmlFileDownloader::runDownloadThread()
 {
     downloading = true;
+    cancelled = false;
     CURLcode result;
     result = curl_easy_perform(curl);
 
@@ -92,18 +100,21 @@ size_t HtmlFileDownloader::write_data(void *ptr, size_t size, size_t nmemb, FILE
 int HtmlFileDownloader::progressHandler(void *ptr, double totalToDownload, double nowDownloaded, double totalToUpload,
                                         double nowUploaded)
 {
-    HtmlFileDownloader::returnExist()->setProgress((unsigned int)(nowDownloaded / totalToDownload * 100));
-    //TODO implement cancel
-    //Always return 0 until cancel function implemented, refers to the cURL document.
+    HtmlFileDownloader::getInstance()->setProgress((unsigned int)(nowDownloaded / totalToDownload * 100));
+    //TODO implement using "CURLOPT_XFERINFODATA" to determine which download to be cancel
+    if(cancelled)
+    {
+        return 1;
+    }
     return 0;
-}
-
-HtmlFileDownloader *HtmlFileDownloader::returnExist()
-{
-    return instance;
 }
 
 void HtmlFileDownloader::setProgress(unsigned int progress)
 {
     HtmlFileDownloader::progress = progress;
+}
+
+void HtmlFileDownloader::cancelCurrentDownload()
+{
+    cancelled = true;
 }

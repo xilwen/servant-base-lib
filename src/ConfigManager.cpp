@@ -1,8 +1,10 @@
 #include "PackageManager.hpp"
 #include "ConfigManager.hpp"
 #include "ProfileManager.hpp"
-#include <experimental/filesystem>
+#include <json.hpp>
+#include "ProfileManager.hpp"
 
+using json = nlohmann::json;
 ConfigManager *ConfigManager::instance = nullptr;
 
 ConfigManager::ConfigManager()
@@ -13,19 +15,13 @@ ConfigManager::ConfigManager()
 
 std::string ConfigManager::getRemoteServiceHost()
 {
-    std::fstream RemoteServerFileStream;
-    if (!std::experimental::filesystem::v1::exists(userDataDir+ "RemoteServer"))
+    json j(ProfileManager::getInstance()->getConfigJson());
+    if(j.find("remoteRepositoryUrl") != j.end())
     {
-        RemoteServerFileStream.open(userDataDir+ "RemoteServer", std::ios_base::out);
-        RemoteServerFileStream << "localhost" << std::endl;
-        RemoteServerFileStream.close();
-        return "localhost";
+        return j.find("remoteRepositoryUrl").value();
     } else
     {
-        std::__cxx11::string remoteHost;
-        RemoteServerFileStream.open(userDataDir+ "RemoteServer", std::ios_base::in);
-        RemoteServerFileStream >> remoteHost;
-        return remoteHost;
+        return std::string();
     }
 }
 

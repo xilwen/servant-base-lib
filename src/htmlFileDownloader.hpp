@@ -6,7 +6,7 @@
 class HtmlFileDownloader
 {
 public:
-    HtmlFileDownloader();
+    static HtmlFileDownloader *getInstance();
 
     void startDownload(std::string url, std::string localPath);
 
@@ -16,22 +16,22 @@ public:
 
     bool succeededLastTime();
 
+    void cancelCurrentDownload();
+
     virtual ~HtmlFileDownloader();
 
-    static HtmlFileDownloader *returnExist();
-    void setProgress(unsigned int progress);
-
 private:
+    HtmlFileDownloader();
+
     void *curl = nullptr;
     const std::string className = "HtmlFileDownloader";
     bool downloading = false,
             succeeded = false;
     unsigned int progress = 0;
-
     FILE *fp;
     static bool exist;
+    static bool cancelled;
     static HtmlFileDownloader *instance;
-
 
     void runDownloadThread();
 
@@ -39,6 +39,8 @@ private:
     progressHandler(void *ptr, double totalToDownload, double nowDownloaded, double totalToUpload, double nowUploaded);
 
     static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+    void setProgress(unsigned int progress);
 
 };
 

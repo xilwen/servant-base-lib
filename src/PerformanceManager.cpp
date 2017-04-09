@@ -1,47 +1,28 @@
 #include "PerformanceManager.hpp"
-#include "PackageManager.hpp"
 #include "Logger.hpp"
 #include "ProfileManager.hpp"
-#include "ProfileManager.hpp"
+#include <json.hpp>
 
-namespace fs = std::experimental::filesystem;
-
+using json = nlohmann::json;
 PerformanceManager *PerformanceManager::instance(nullptr);
 
 PerformanceManager::PerformanceManager()
 {
     instance = this;
-    userDataDir = ProfileManager::getInstance()->getUserDataDirString();
-    std::string perfDataPath(userDataDir + "/perfData");
-    if (fs::exists(perfDataPath))
+    json j = ProfileManager::getInstance()->getPerformanceJson();
+    if (j.find("processorRate") != j.end() && j.find("memoryRate") != j.end() && j.find("diskRate") != j.end())
     {
-        std::ifstream perfDataIfstream;
-        perfDataIfstream.open(perfDataPath, std::ios::in);
-        for (int i = 0; i < 3 && !perfDataIfstream.eof(); ++i)
-        {
-            std::string dataString;
-            std::getline(perfDataIfstream, dataString);
-            switch (i)
-            {
-                case 0:
-                    processorRate = std::stoi(dataString);
-                    break;
-                case 1:
-                    memoryRate = std::stoi(dataString);
-                    break;
-                case 2:
-                    diskRate = std::stoi(dataString);
-                    break;
-                default:
-                    break;
-            }
-        }
-        perfDataIfstream.close();
+        setProcessorRate(j.find("processRate").value());
+        setMemoryRate(j.find("memoryRate").value());
+        setDiskRate(j.find("diskRate").value());
     } else
     {
-        processorRate = memoryRate = diskRate = -1;
+        Logger::log("PerformanceManager", __func__, InfoLevel::WARNING,
+                    "performance profile invalid, using default values");
+        setProcessorRate(-1);
+        setMemoryRate(-1);
+        setDiskRate(-1);
     }
-
 }
 
 PerformanceManager::~PerformanceManager()
@@ -82,21 +63,11 @@ void PerformanceManager::setDiskRate(int diskRate)
 
 void PerformanceManager::writeDataToFile()
 {
-    std::__cxx11::string perfDataPath(userDataDir+ "/perfData");
-    std::ofstream perfDataOfstream;
-    perfDataOfstream.open(perfDataPath, std::ios_base::trunc | std::ios_base::out);
-    if (perfDataOfstream.is_open())
-    {
-        perfDataOfstream << std::__cxx11::to_string(processorRate) << std::endl << std::__cxx11::to_string(memoryRate)
-                         << std::endl <<
-                         std::__cxx11::to_string(diskRate);
-        perfDataOfstream.close();
-
-    } else
-    {
-        Logger::log("PerformanceManager", __func__, WARNING,
-                    "Can not write performance data, changes will not be saved.");
-    }
+    json j;
+    j.emplace("processorRate", getProcessorRate());
+    j.emplace("memoryRate", getMemoryRate());
+    j.emplace("diskRate", getDiskRate());
+    ProfileManager::getInstance()->writePerformanceJson(j);
 }
 
 PerformanceManager *PerformanceManager::getInstance()

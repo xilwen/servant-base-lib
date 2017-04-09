@@ -28,7 +28,7 @@ set(SOURCE_FILES
         src/HtmlFileDownloader.cpp
         src/VBoxWrapperHolder.cpp
         src/FirstTimeUtilities.cpp
-        src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp src/ProfileManager.cpp src/ProfileManager.hpp src/ConfigManager.cpp src/ConfigManager.hpp)
+        src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp src/ProfileManager.cpp src/ProfileManager.hpp src/ConfigManager.cpp src/ConfigManager.hpp src/MallManager.cpp src/MallManager.hpp src/MallItem.cpp src/MallItem.hpp)
 
 add_library(SERVANTBase ${SOURCE_FILES})
 target_link_libraries(SERVANTBase stdc++fs curl ws2_32 wldap32 boost_locale)
