@@ -54,6 +54,7 @@ void MallManager::getListFromRemoteServer()
     if(!HtmlFileDownloader::getInstance()->succeededLastTime())
     {
         Logger::log("MallManager", __func__, InfoLevel::ERR, "Download failed!");
+        ProfileManager::getInstance()->writeMallRepositoryJson("[]"_json);
     } else
     {
         Logger::log("MallManager", __func__, InfoLevel::ERR, "Download succeed!");
@@ -62,6 +63,7 @@ void MallManager::getListFromRemoteServer()
 
 void MallManager::loadLocalItemList()
 {
+    items.clear();
     json j(ProfileManager::getInstance()->getMallRepositoryJson());
     for (auto it = j.begin(); it != j.end(); ++it)
     {
@@ -81,6 +83,7 @@ void MallManager::loadLocalItemList()
             newItem.setDiskSpeedLevel(it->find("diskSpeedLevel").value());
             newItem.setRequireVMX(it->find("requireVMX").value());
             newItem.setVboxImageFile(it->find("vboxImageFile").value());
+            newItem.setFileSize(it->find("fileSize").value());
         }
         catch (std::exception &e)
         {

@@ -1,4 +1,10 @@
 #include "MallItem.hpp"
+#include "HtmlFileDownloader.hpp"
+#include "Logger.hpp"
+#include "ProfileManager.hpp"
+#include "ConfigManager.hpp"
+#include <chrono>
+#include <thread>
 
 const std::string &MallItem::getName() const
 {
@@ -130,3 +136,49 @@ void MallItem::setRequireVMX(bool requireVMX)
     MallItem::requireVMX = requireVMX;
 }
 
+const std::string &MallItem::getFileSize() const
+{
+    return fileSize;
+}
+
+void MallItem::setFileSize(const std::string &fileSize)
+{
+    MallItem::fileSize = fileSize;
+}
+
+
+void MallItem::downloadAdditionalFiles()
+{
+    HtmlFileDownloader *htmlFileDownloader = HtmlFileDownloader::getInstance();
+    while(htmlFileDownloader->isDownloading())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        Logger::log("MallItem", __func__, InfoLevel::WARNING, "waiting for other downloads...");
+    }
+
+    htmlFileDownloader->startDownload(ConfigManager::getInstance()->getRemoteServiceHost() + "/" + getIconPath(),
+                                      ProfileManager::getInstance()->getUserDataDirString() + "/" + getIconPath());
+    while(htmlFileDownloader->isDownloading())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+}
+
+bool MallItem::filesAreReady()
+{
+
+}
+
+void MallItem::installAdditionalInfoToLastInstalledMachine()
+{
+    json j(ProfileManager::getInstance()->getMachinesJson());
+    if(!j.is_array())
+    {
+        Logger::log("MallItem", __func__, InfoLevel::ERR, "no machine in machine json. stop.");
+        return;
+    }
+    j.back().emplace("serverType", getName());
+    j.back().emplace("icon", getIconPath());
+    ProfileManager::getInstance()->writeMachinesJson(j);
+}

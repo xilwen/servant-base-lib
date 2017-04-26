@@ -25,6 +25,19 @@ std::string ConfigManager::getRemoteServiceHost()
     }
 }
 
+void ConfigManager::setRemoteServiceHost(std::string string)
+{
+    json j(ProfileManager::getInstance()->getConfigJson());
+    if(j.find("remoteRepositoryUrl") != j.end())
+    {
+        j["remoteRepositoryUrl"] = string;
+    } else
+    {
+        j.emplace("remoteRepositoryUrl", string);
+    }
+    ProfileManager::getInstance()->writeConfigJson(j);
+}
+
 ConfigManager *ConfigManager::getInstance()
 {
     return instance;

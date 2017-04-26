@@ -35,9 +35,19 @@ public:
 
     void rename(std::wstring newName);
 
+    std::string & getIconPath();
+
+    void setIconPath(const std::string &iconPath);
+
+    std::string & getType();
+
+    void setType(const std::string &type);
+
 private:
     std::wstring uuid,
             name;
+    std::string iconPath,
+            type;
 
 };
 

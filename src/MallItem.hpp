@@ -58,6 +58,12 @@ public:
 
     void setRequireVMX(bool requireVMX);
 
+    void downloadAdditionalFiles();
+
+    bool filesAreReady();
+
+    void installAdditionalInfoToLastInstalledMachine();
+
 private:
     //All These Strings Use UTF-8 in std::string.
     std::string name,
@@ -68,7 +74,14 @@ private:
             operatingSystem,
             managementUI,
             introduction,
-            vboxImageFile;
+            vboxImageFile,
+            fileSize;
+public:
+    const std::string &getFileSize() const;
+
+    void setFileSize(const std::string &fileSize);
+
+private:
     int cpuLevel,
             ramLevel,
             diskSpeedLevel;

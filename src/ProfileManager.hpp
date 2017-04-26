@@ -43,6 +43,13 @@ public:
 
     void writePerformanceJson(const json &input);
 
+    json getMachinesJson();
+
+    void writeMachinesJson(const json &input);
+
+    void resetMachinesJson();
+
+
 private:
     static ProfileManager *instance;
     bool firstTime;
@@ -52,6 +59,7 @@ private:
     fs::path mallRepositoryPath;
     fs::path performanceFilePath;
     fs::path downloadDir;
+    fs::path machinesFilePath;
 
     void initDataDir();
 

@@ -1,6 +1,7 @@
 #include "PackageManager.hpp"
 #include "Logger.hpp"
 #include "ProfileManager.hpp"
+#include "ConfigManager.hpp"
 #include <json.hpp>
 #include <boost/locale.hpp>
 
@@ -20,41 +21,30 @@ PackageManager::PackageManager()
 
 void PackageManager::initMachineData()
 {
-    std::__cxx11::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    machineDataPath = converter.to_bytes(userDataDir.wstring() + L"/machines.json");
-    if (!fs::exists(machineDataPath))
+    json j(ProfileManager::getInstance()->getMachinesJson());
+    if(!j.is_array())
     {
-        Logger::log("PackageManager", __func__, INFO, "creating new machines.json.");
-        machineDataFileStream.open(machineDataPath, std::ios::out | std::ios::trunc);
-        "[]"_json >> machineDataFileStream;
-        machineDataFileStream.close();
-    } else
-    {
-        Logger::log("PackageManager", __func__, INFO, "existing machines.json found.");
-        loadMachinesArray();
+        Logger::log("PackageManager", __func__, INFO, "JSON Invalid, will be recreated.");
+        ProfileManager::getInstance()->resetMachinesJson();
+        return;
     }
+    if(j.size() == 0)
+    {
+        return;
+    }
+    loadMachinesArray();
 }
 
 PackageManager::~PackageManager()
 {
-    if (machineDataFileStream.is_open())
-    {
-        machineDataFileStream.close();
-    }
     instance = nullptr;
 }
 
 void PackageManager::loadMachinesArray()
 {
     machines.clear();
-    if (machineDataFileStream.is_open())
-    {
-        machineDataFileStream.close();
-    }
-    machineDataFileStream.open(machineDataPath, std::ios::in);
-    json machineJson;
-    machineDataFileStream >> machineJson;
-    machineDataFileStream.close();
+
+    json machineJson(ProfileManager::getInstance()->getMachinesJson());
 
     if (!machineJson.is_array())
     {
@@ -83,6 +73,15 @@ void PackageManager::loadMachinesArray()
             VirtualMachine newMachine;
             newMachine.setName(machineNameWstring);
             newMachine.setUuid(machineUuidWstring);
+            if(it->find("icon") != it->end())
+            {
+                newMachine.setIconPath(ConfigManager::getInstance()->getRemoteServiceHost() + "/" + it->find("icon")->get<std::string>());
+            }
+            if(it->find("serverType") != it->end())
+            {
+                newMachine.setType(it->find("serverType").value());
+            }
+
             machines.push_back(newMachine);
         } catch (std::exception &e)
         {
@@ -93,11 +92,13 @@ void PackageManager::loadMachinesArray()
 
 std::wstring PackageManager::importOVA(std::wstring path)
 {
+    Logger::log("PackageManager", __func__, InfoLevel::INFO, path);
     return vBoxWrapperClient->message()->message(L"import " + path);
 }
 
 bool PackageManager::OVAImportCompleted()
 {
+    Logger::log("PackageManager", __func__, InfoLevel::INFO, "Import Completed");
     auto result = vBoxWrapperClient->message()->message(L"get importStat");
     return (result == L"IDLE");
 }
@@ -110,14 +111,8 @@ bool PackageManager::OVAImportSucceeded()
     {
         auto newName(vBoxWrapperClient->message()->message(L"get importedNewName"));
         Logger::log("PackageManager", __func__, INFO, L"New Server is named " + newName);
-        if (machineDataFileStream.is_open())
-        {
-            machineDataFileStream.close();
-        }
-        machineDataFileStream.open(machineDataPath, std::ios::in);
-        json machineJson;
-        machineDataFileStream >> machineJson;
-        machineDataFileStream.close();
+
+        json machineJson(ProfileManager::getInstance()->getMachinesJson());
 
         if (machineJson.is_array())
         {
@@ -125,11 +120,12 @@ bool PackageManager::OVAImportSucceeded()
             std::string newUuidString = boost::locale::conv::utf_to_utf<char>(
                     vBoxWrapperClient->message()->machineMessage(newName, L"get machineId"));
             machineJson.back().emplace("machineUuid", newUuidString.c_str());
-            machineDataFileStream.open(machineDataPath, std::ios::out | std::ios::trunc);
-            machineDataFileStream << machineJson;
-            machineDataFileStream.close();
+            ProfileManager::getInstance()->writeMachinesJson(machineJson);
         }
         loadMachinesArray();
+    } else
+    {
+        Logger::log("PackageManager", __func__, InfoLevel::INFO, "Import Failed");
     }
     return succeeded;
 }
@@ -173,3 +169,7 @@ PackageManager *PackageManager::getInstance()
     return instance;
 }
 
+void PackageManager::refreshMachines()
+{
+    loadMachinesArray();
+}

@@ -13,6 +13,8 @@ public:
 
     std::string getRemoteServiceHost();
 
+    void setRemoteServiceHost(std::string string);
+
     static ConfigManager *getInstance();
 
 private:

@@ -23,6 +23,8 @@ public:
 
     int OVAImportProgress();
 
+    void refreshMachines();
+
     void DeleteMachine(VirtualMachine *virtualMachine);
 
     void DeleteMachine(const std::wstring &nameOrUuid);

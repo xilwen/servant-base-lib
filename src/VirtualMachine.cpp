@@ -92,3 +92,24 @@ VirtualMachine *VirtualMachine::getInstance()
 {
     return this;
 }
+
+std::string & VirtualMachine::getIconPath()
+{
+    return iconPath;
+}
+
+void VirtualMachine::setIconPath(const std::string &iconPath)
+{
+    VirtualMachine::iconPath = iconPath;
+}
+
+std::string & VirtualMachine::getType()
+{
+    return type;
+}
+
+void VirtualMachine::setType(const std::string &type)
+{
+    VirtualMachine::type = type;
+}
+

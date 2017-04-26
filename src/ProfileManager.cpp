@@ -89,7 +89,7 @@ json ProfileManager::getConfigJson()
     } else
     {
         j = {
-                {"remoteRepositoryUrl", "http://127.0.0.1/SERVANT/repo/"},
+                {"remoteRepositoryUrl", "http://134.208.2.142:8090/SERVANT/repo/"},
                 {"vBoxWrapperType",     "Local"}
 
         };
@@ -111,7 +111,7 @@ json ProfileManager::getMallRepositoryJson()
         return getJsonFromFile(mallRepositoryPath);
     } else
     {
-        j = createJsonToFile(json(), mallRepositoryPath);
+        j = createJsonToFile("[]"_json, mallRepositoryPath);
     }
     return j;
 }
@@ -126,6 +126,7 @@ void ProfileManager::initJsonFilePath()
     configFilePath = userDataDir.string() + "/config.json";
     mallRepositoryPath = userDataDir.string() + "/mallRepository.json";
     performanceFilePath = userDataDir.string() + "/performance.json";
+    machinesFilePath = userDataDir.string() + "/machines.json";
     downloadDir = userDataDir.string() + "/download/";
 }
 
@@ -147,13 +148,43 @@ void ProfileManager::writePerformanceJson(const json &input)
     createJsonToFile(input, performanceFilePath);
 }
 
+json ProfileManager::getMachinesJson()
+{
+    json j;
+    if (fs::exists(machinesFilePath))
+    {
+        return getJsonFromFile(machinesFilePath);
+    } else
+    {
+        j = createJsonToFile("[]"_json, machinesFilePath);
+    }
+    return j;
+}
+
+void ProfileManager::writeMachinesJson(const json &input)
+{
+    createJsonToFile(input, machinesFilePath);
+}
+
+void ProfileManager::resetMachinesJson()
+{
+    fs::remove(machinesFilePath);
+    getMachinesJson();
+}
+
 json ProfileManager::createJsonToFile(json j, fs::path &filePath)
 {
     std::ofstream file;
     file.open(filePath.string(), std::ios_base::out | std::ios_base::trunc);
     if (file.is_open())
     {
-        j >> file;
+        if (j.is_null())
+        {
+            "{}"_json >> file;
+        } else
+        {
+            j >> file;
+        }
         file.close();
         Logger::log("ProfileManager", __func__, INFO, "Created " + filePath.string());
     } else
@@ -173,7 +204,8 @@ json ProfileManager::getJsonFromFile(fs::path &filePath)
         try
         {
             file >> j;
-        }catch(std::exception &e)
+        }
+        catch (std::exception &e)
         {
             Logger::log("ProfileManager", __func__, InfoLevel::ERR, e.what());
         }
