@@ -9,7 +9,7 @@
 #include "PerformanceManager.hpp"
 #include "ProgramHolder.hpp"
 #include "VBoxWrapperClient.hpp"
-#include "VBoxWrapperHolder.hpp"
+#include "VMWrapperHolder.hpp"
 #include "VBoxWrapperMessenger.hpp"
 #include "VirtualMachine.hpp"
 #include "ConfigManager.hpp"
@@ -24,7 +24,7 @@ public:
 
     void initialWithLocalWrapper();
 
-    VBoxWrapperHolder *getVBoxWrapperHolder() const;
+    VMWrapperHolder *getVBoxWrapperHolder() const;
 
     VBoxWrapperClient *getVBoxWrapperClient() const;
 
@@ -44,7 +44,7 @@ private:
     ServantBase();
 
     static ServantBase *instance;
-    VBoxWrapperHolder *vBoxWrapperHolder;
+    VMWrapperHolder *vBoxWrapperHolder;
     VBoxWrapperClient *vBoxWrapperClient;
     PackageManager *packageManager;
     PerformanceManager *performanceManager;

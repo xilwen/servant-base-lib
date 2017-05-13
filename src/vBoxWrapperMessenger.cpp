@@ -1,6 +1,6 @@
 #include "VBoxWrapperMessenger.hpp"
 #include "Logger.hpp"
-#include "VBoxWrapperHolder.hpp"
+#include "VMWrapperHolder.hpp"
 #include <thread>
 
 VBoxWrapperMessenger::VBoxWrapperMessenger(tcp::socket *socket) : socket(socket)
@@ -95,14 +95,14 @@ void VBoxWrapperMessenger::timerRunner()
     {
         try
         {
-            if (!VBoxWrapperHolder::getInstance() || !VBoxWrapperHolder::getInstance()->isRunning())
+            if (!VMWrapperHolder::getInstance() || !VMWrapperHolder::getInstance()->isRunning())
             {
                 break;
             }
         }
         catch(const std::runtime_error &runtimeError)
         {
-            Logger::log("VBoxWrapperMessenger", __func__, InfoLevel::ERR, "No VBoxWrapperHolder is running?");
+            Logger::log("VBoxWrapperMessenger", __func__, InfoLevel::ERR, "No VMWrapperHolder is running?");
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         ++idleTime;

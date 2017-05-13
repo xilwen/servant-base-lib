@@ -26,7 +26,7 @@ set(SOURCE_FILES
         src/PackageManager.cpp
         src/VirtualMachine.cpp
         src/HtmlFileDownloader.cpp
-        src/VBoxWrapperHolder.cpp
+        src/VMWrapperHolder.cpp
         src/FirstTimeUtilities.cpp
         src/PerformanceManager.cpp src/ProgramHolder.cpp src/ProgramHolder.hpp src/ServantBase.cpp src/WindowsUtilities.cpp src/WindowsUtilities.hpp src/Utilities.cpp src/Utilities.hpp src/ProfileManager.cpp src/ProfileManager.hpp src/ConfigManager.cpp src/ConfigManager.hpp src/MallManager.cpp src/MallManager.hpp src/MallItem.cpp src/MallItem.hpp)
 

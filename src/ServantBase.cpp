@@ -19,8 +19,7 @@ void ServantBase::initialWithLocalWrapper()
     profileManager = new ProfileManager(WindowsUtilities::getHomePath());
     try
     {
-        vBoxWrapperHolder = new VBoxWrapperHolder(
-                Utilities::toString(WindowsUtilities::getHomePath()) + "/SERVANT/vBoxWrapper.exe");
+        vBoxWrapperHolder = new VMWrapperHolder();
     }
     catch (...)
     {
@@ -66,7 +65,7 @@ ServantBase::~ServantBase()
     resetBase();
 }
 
-VBoxWrapperHolder *ServantBase::getVBoxWrapperHolder() const
+VMWrapperHolder *ServantBase::getVBoxWrapperHolder() const
 {
     return vBoxWrapperHolder;
 }
