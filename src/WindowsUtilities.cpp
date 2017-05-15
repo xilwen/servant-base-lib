@@ -1,4 +1,5 @@
 #include "WindowsUtilities.hpp"
+#include "ProfileManager.hpp"
 #include <windows.h>
 
 std::wstring WindowsUtilities::getHomePath()
@@ -9,4 +10,15 @@ std::wstring WindowsUtilities::getHomePath()
     GetEnvironmentVariableW(L"HOMEDRIVE", homeDriveDataBuffer, 255);
     auto homePath(std::wstring(homeDriveDataBuffer) + std::wstring(homePathDataBuffer));
     return homePath;
+}
+
+void WindowsUtilities::ipconfigAndSave()
+{
+    VBoxWrapperClient::getInstance()->message()->message(L"get ipconfigAndSave");
+}
+
+void WindowsUtilities::startURI(std::string uri)
+{
+    std::string command("start " + uri);
+    system(command.c_str());
 }

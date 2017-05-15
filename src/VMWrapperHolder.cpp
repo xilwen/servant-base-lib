@@ -61,6 +61,11 @@ void VMWrapperHolder::start()
         Logger::log(className, __func__, InfoLevel::INFO, "service is already running");
         return;
     }
+    if (!service)
+    {
+        Logger::log(className, __func__, InfoLevel::INFO, "no service handle, opening...");
+        openService();
+    }
     if (!StartServiceA(service, 0, nullptr))
     {
         Logger::log(className, __func__, InfoLevel::INFO,
@@ -87,6 +92,11 @@ void VMWrapperHolder::stop()
     {
         Logger::log(className, __func__, InfoLevel::INFO, "service is not running or starting?");
     }
+    if (!service)
+    {
+        Logger::log(className, __func__, InfoLevel::INFO, "no service handle, opening...");
+        openService();
+    }
     if (!ControlService(service, SERVICE_CONTROL_STOP, reinterpret_cast<LPSERVICE_STATUS>(&serviceStatusProcess)));
     {
         Logger::log(className, __func__, InfoLevel::INFO,
@@ -98,7 +108,7 @@ void VMWrapperHolder::stop()
         if(stopwatch > 20000)
         {
             Logger::log(className, __func__, InfoLevel::INFO,
-                        "20000ms used before started, seems to have some problem.... exit the loop.");
+                        "20000ms used before stopped, seems to have some problem.... exit the loop.");
             return;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -125,7 +135,7 @@ void VMWrapperHolder::queryServiceStatus()
 {
     DWORD bytesNeeded;
     if (!QueryServiceStatusEx(service, SC_STATUS_PROCESS_INFO, reinterpret_cast<LPBYTE>(&serviceStatusProcess),
-                              sizeof(SERVICE_STATUS_PROCESS), &bytesNeeded));
+                              sizeof(SERVICE_STATUS_PROCESS), &bytesNeeded))
     {
         Logger::log(className, __func__, INFO,
                     "QueryServiceStatusEx failed with " + std::__cxx11::to_string(GetLastError()));

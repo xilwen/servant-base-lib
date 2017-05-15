@@ -14,6 +14,9 @@
 #include "VirtualMachine.hpp"
 #include "ConfigManager.hpp"
 #include "MallManager.hpp"
+#include "DiagnosisUtilities.hpp"
+#include "WindowsUtilities.hpp"
+
 
 class ServantBase
 {
