@@ -13,6 +13,7 @@ public:
 
 private:
     DiagnosisUtilities();
+    std::string ipifyCache;
     unsigned int timer = 0;
 };
 

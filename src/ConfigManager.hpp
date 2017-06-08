@@ -15,6 +15,10 @@ public:
 
     void setRemoteServiceHost(std::string string);
 
+    std::string getLocalIPAddress();
+
+    void setLocalIPAddress(std::string string);
+
     static ConfigManager *getInstance();
 
 private:

@@ -8,6 +8,7 @@ class WindowsUtilities
 public:
     static std::wstring getHomePath();
     static void ipconfigAndSave();
+    static std::string getIpconfig();
     static void startURI(std::string uri);
 };
 

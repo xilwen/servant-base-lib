@@ -38,6 +38,7 @@ void ServantBase::initialWithLocalWrapper()
     configManager = new ConfigManager;
     mallManager = new MallManager;
     performanceManager = new PerformanceManager;
+    DiagnosisUtilities::getInstance()->getIpFromIpify();
     successFlag = true;
 }
 
@@ -98,4 +99,9 @@ ConfigManager *ServantBase::getConfigManager() const
 MallManager *ServantBase::getMallManager() const
 {
     return mallManager;
+}
+
+bool ServantBase::getSuccessFlag() const
+{
+    return successFlag;
 }

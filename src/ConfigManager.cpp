@@ -38,6 +38,31 @@ void ConfigManager::setRemoteServiceHost(std::string string)
     ProfileManager::getInstance()->writeConfigJson(j);
 }
 
+std::string ConfigManager::getLocalIPAddress()
+{
+    json j(ProfileManager::getInstance()->getConfigJson());
+    if(j.find("localIPAddress") != j.end())
+    {
+        return j.find("localIPAddress").value();
+    } else
+    {
+        return std::string();
+    }
+}
+
+void ConfigManager::setLocalIPAddress(std::string string)
+{
+    json j(ProfileManager::getInstance()->getConfigJson());
+    if(j.find("localIPAddress") != j.end())
+    {
+        j["localIPAddress"] = string;
+    } else
+    {
+        j.emplace("localIPAddress", string);
+    }
+    ProfileManager::getInstance()->writeConfigJson(j);
+}
+
 ConfigManager *ConfigManager::getInstance()
 {
     return instance;

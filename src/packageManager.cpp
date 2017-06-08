@@ -73,6 +73,7 @@ void PackageManager::loadMachinesArray()
             VirtualMachine newMachine;
             newMachine.setName(machineNameWstring);
             newMachine.setUuid(machineUuidWstring);
+            newMachine.setUuidString(it->find("machineUuid").value());
             if(it->find("icon") != it->end())
             {
                 newMachine.setIconPath(ConfigManager::getInstance()->getRemoteServiceHost() + "/" + it->find("icon")->get<std::string>());
@@ -81,13 +82,54 @@ void PackageManager::loadMachinesArray()
             {
                 newMachine.setType(it->find("serverType").value());
             }
-
+            if(it->find("port") != it->end())
+            {
+                newMachine.setPortNumber(it->find("port").value());
+            }
+            if(it->find("customPort") != it->end())
+            {
+                newMachine.setCustomPortNumber(it->find("customPort").value());
+            }
+            if(it->find("managementURL") != it->end())
+            {
+                newMachine.setManagementURL(it->find("managementURL").value());
+                newMachine.setManagementPort(it->find("managementPort").value());
+            }
+            if(it->find("tipURL") != it->end())
+            {
+                newMachine.setTipURL(it->find("tipURL").value());
+            }
+            if(it->find("protocol") != it->end())
+            {
+                newMachine.setProtocol(it->find("protocol").value());
+            }
+            if(it->find("managementPort") != it->end())
+            {
+                newMachine.setManagementPort(it->find("managementPort").value());
+            }
+            if(it->find("useLocalIP") != it->end())
+            {
+                newMachine.setUseLocalIP(it->find("useLocalIP").value());
+            }
+            if(it->find("singletonPort") != it->end())
+            {
+                newMachine.setSingletonPort(it->find("singletonPort").value());
+            }
             machines.push_back(newMachine);
         } catch (std::exception &e)
         {
             Logger::log("PackageManager", __func__, INFO, e.what());
         }
     }
+
+    //Log Machines Array for debugging
+    std::wstring logString(L"Machines Array Info:\n");
+    for (auto it = machines.begin(); it != machines.end(); ++it)
+    {
+        logString += ( it->getName() + L" " + it->getUuid() + L"\n");
+    }
+    logString += L"****";
+    Logger::log("PackageManager", __func__, InfoLevel::INFO, logString);
 }
 
 std::wstring PackageManager::importOVA(std::wstring path)

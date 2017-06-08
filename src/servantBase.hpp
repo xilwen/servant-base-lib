@@ -43,6 +43,8 @@ public:
 
     void resetBase();
 
+    bool getSuccessFlag() const;
+
 private:
     ServantBase();
 

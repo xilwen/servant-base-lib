@@ -64,6 +64,70 @@ public:
 
     void installAdditionalInfoToLastInstalledMachine();
 
+    const std::string &getFileSize() const;
+
+    void setFileSize(const std::string &fileSize);
+
+    const std::string &getManagementURL() const;
+
+    void setManagementURL(const std::string &managementURL);
+
+    unsigned int getPort() const;
+
+    void setPort(unsigned int port);
+
+    const std::string &getShareAdditionURL() const;
+
+    void setShareAdditionURL(const std::string &shareAdditionURL);
+
+    unsigned int getManagementPort() const;
+
+    void setManagementPort(unsigned int managementPort);
+
+    unsigned int getProfile0CPU() const;
+
+    void setProfile0CPU(unsigned int profile0CPU);
+
+    unsigned int getProfile0RAM() const;
+
+    void setProfile0RAM(unsigned int profile0RAM);
+
+    unsigned int getProfile1CPU() const;
+
+    void setProfile1CPU(unsigned int profile1CPU);
+
+    unsigned int getProfile1RAM() const;
+
+    void setProfile1RAM(unsigned int profile1RAM);
+
+    unsigned int getProfile2CPU() const;
+
+    void setProfile2CPU(unsigned int profile2CPU);
+
+    unsigned int getProfile2RAM() const;
+
+    void setProfile2RAM(unsigned int profile2RAM);
+
+    const std::string &getIntroductionURL() const;
+
+    void setIntroductionURL(const std::string &introductionURL);
+
+    const std::string &getProtocol() const;
+
+    void setProtocol(const std::string &protocol);
+
+    const std::string &getTipURL() const;
+
+    void setTipURL(const std::string &tipURL);
+
+    bool isOnlyOneServerAllowed() const;
+
+    void setOnlyOneServerAllowed(bool onlyOneServerAllowed);
+
+    unsigned int getSingletonPort() const;
+
+    void setSingletonPort(unsigned int singletonPort);
+
 private:
     //All These Strings Use UTF-8 in std::string.
     std::string name,
@@ -75,18 +139,27 @@ private:
             managementUI,
             introduction,
             vboxImageFile,
-            fileSize;
-public:
-    const std::string &getFileSize() const;
+            fileSize,
+            managementURL,
+            shareAdditionURL,
+            introductionURL,
+            protocol,
+            tipURL;
 
-    void setFileSize(const std::string &fileSize);
-
-private:
-    int cpuLevel,
-            ramLevel,
-            diskSpeedLevel;
-    bool requireVMX;
+    int cpuLevel = 0,
+            ramLevel = 0,
+            diskSpeedLevel = 0;
+    unsigned int port = 0,
+            managementPort = 0,
+            singletonPort = 0,
+            profile0CPU = 0,
+            profile0RAM = 0,
+            profile1CPU = 0,
+            profile1RAM = 0,
+            profile2CPU = 0,
+            profile2RAM = 0;
+    bool requireVMX = false,
+            onlyOneServerAllowed = false;
 };
-
 
 #endif //SERVANTBASE_MALLITEM_HPP

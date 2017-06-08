@@ -1,6 +1,7 @@
 #include "WindowsUtilities.hpp"
 #include "ProfileManager.hpp"
 #include <windows.h>
+#include <fstream>
 
 std::wstring WindowsUtilities::getHomePath()
 {
@@ -19,6 +20,24 @@ void WindowsUtilities::ipconfigAndSave()
 
 void WindowsUtilities::startURI(std::string uri)
 {
+    if(uri.empty())
+        return;
     std::string command("start " + uri);
     system(command.c_str());
+}
+
+std::string WindowsUtilities::getIpconfig()
+{
+    std::ifstream ifstream;
+    std::string string, tempString;
+    ifstream.open("C:\\SERVANT\\ipconfig.txt");
+    if(ifstream.is_open())
+    {
+        while(std::getline(ifstream, tempString))
+        {
+            string += tempString;
+            string += '\n';
+        }
+    }
+    return string;
 }

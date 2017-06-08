@@ -84,6 +84,42 @@ void MallManager::loadLocalItemList()
             newItem.setRequireVMX(it->find("requireVMX").value());
             newItem.setVboxImageFile(it->find("vboxImageFile").value());
             newItem.setFileSize(it->find("fileSize").value());
+            newItem.setPort(it->find("port").value());
+            newItem.setManagementPort(it->find("managementPort").value());
+            newItem.setManagementURL(it->find("managementURL").value());
+            newItem.setProtocol(it->find("protocol").value());
+            newItem.setTipURL(it->find("tipURL").value());
+            if(it->find("shareAdditionURL") != it->end())
+            {
+                newItem.setShareAdditionURL(it->find("shareAdditionURL").value());
+            }
+            if(it->find("profile0CPU") != it->end())
+            {
+                newItem.setProfile0CPU(it->find("profile0CPU").value());
+                newItem.setProfile0RAM(it->find("profile0RAM").value());
+            }
+            if(it->find("profile1CPU") != it->end())
+            {
+                newItem.setProfile1CPU(it->find("profile1CPU").value());
+                newItem.setProfile1RAM(it->find("profile1RAM").value());
+            }
+            if(it->find("profile2CPU") != it->end())
+            {
+                newItem.setProfile2CPU(it->find("profile2CPU").value());
+                newItem.setProfile2RAM(it->find("profile2RAM").value());
+            }
+            if(it->find("introductionURL") != it->end())
+            {
+                newItem.setIntroductionURL(it->find("introductionURL").value());
+            }
+            if(it->find("onlyOneServerAllowed") != it->end())
+            {
+                newItem.setOnlyOneServerAllowed(it->find("onlyOneServerAllowed").value());
+            }
+            if(it->find("singletonPort") != it->end())
+            {
+                newItem.setSingletonPort(it->find("singletonPort").value());
+            }
         }
         catch (std::exception &e)
         {

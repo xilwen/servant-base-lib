@@ -180,5 +180,163 @@ void MallItem::installAdditionalInfoToLastInstalledMachine()
     }
     j.back().emplace("serverType", getName());
     j.back().emplace("icon", getIconPath());
+    j.back().emplace("port", getPort());
+    j.back().emplace("managementURL", getManagementURL());
+    j.back().emplace("managementPort", getManagementPort());
+    j.back().emplace("tipURL", getTipURL());
+    j.back().emplace("onlyOneServerAllowed", isOnlyOneServerAllowed());
+    j.back().emplace("protocol", getProtocol());
+    j.back().emplace("singletonPort", getSingletonPort());
+
     ProfileManager::getInstance()->writeMachinesJson(j);
+}
+
+const std::string &MallItem::getManagementURL() const
+{
+    return managementURL;
+}
+
+void MallItem::setManagementURL(const std::string &managementURL)
+{
+    MallItem::managementURL = managementURL;
+}
+
+unsigned int MallItem::getPort() const
+{
+    return port;
+}
+
+void MallItem::setPort(unsigned int port)
+{
+    MallItem::port = port;
+}
+
+const std::string &MallItem::getShareAdditionURL() const
+{
+    return shareAdditionURL;
+}
+
+void MallItem::setShareAdditionURL(const std::string &shareAdditionURL)
+{
+    MallItem::shareAdditionURL = shareAdditionURL;
+}
+
+unsigned int MallItem::getManagementPort() const
+{
+    return managementPort;
+}
+
+void MallItem::setManagementPort(unsigned int managementPort)
+{
+    MallItem::managementPort = managementPort;
+}
+
+unsigned int MallItem::getProfile0CPU() const
+{
+    return profile0CPU;
+}
+
+void MallItem::setProfile0CPU(unsigned int profile0CPU)
+{
+    MallItem::profile0CPU = profile0CPU;
+}
+
+unsigned int MallItem::getProfile0RAM() const
+{
+    return profile0RAM;
+}
+
+void MallItem::setProfile0RAM(unsigned int profile0RAM)
+{
+    MallItem::profile0RAM = profile0RAM;
+}
+
+unsigned int MallItem::getProfile1CPU() const
+{
+    return profile1CPU;
+}
+
+void MallItem::setProfile1CPU(unsigned int profile1CPU)
+{
+    MallItem::profile1CPU = profile1CPU;
+}
+
+unsigned int MallItem::getProfile1RAM() const
+{
+    return profile1RAM;
+}
+
+void MallItem::setProfile1RAM(unsigned int profile1RAM)
+{
+    MallItem::profile1RAM = profile1RAM;
+}
+
+unsigned int MallItem::getProfile2CPU() const
+{
+    return profile2CPU;
+}
+
+void MallItem::setProfile2CPU(unsigned int profile2CPU)
+{
+    MallItem::profile2CPU = profile2CPU;
+}
+
+unsigned int MallItem::getProfile2RAM() const
+{
+    return profile2RAM;
+}
+
+void MallItem::setProfile2RAM(unsigned int profile2RAM)
+{
+    MallItem::profile2RAM = profile2RAM;
+}
+
+const std::string &MallItem::getIntroductionURL() const
+{
+    return introductionURL;
+}
+
+void MallItem::setIntroductionURL(const std::string &introductionURL)
+{
+    MallItem::introductionURL = introductionURL;
+}
+
+const std::string &MallItem::getProtocol() const
+{
+    return protocol;
+}
+
+void MallItem::setProtocol(const std::string &protocol)
+{
+    MallItem::protocol = protocol;
+}
+
+const std::string &MallItem::getTipURL() const
+{
+    return tipURL;
+}
+
+void MallItem::setTipURL(const std::string &tipURL)
+{
+    MallItem::tipURL = tipURL;
+}
+
+bool MallItem::isOnlyOneServerAllowed() const
+{
+    return onlyOneServerAllowed;
+}
+
+void MallItem::setOnlyOneServerAllowed(bool onlyOneServerAllowed)
+{
+    MallItem::onlyOneServerAllowed = onlyOneServerAllowed;
+}
+
+unsigned int MallItem::getSingletonPort() const
+{
+    return singletonPort;
+}
+
+void MallItem::setSingletonPort(unsigned int singletonPort)
+{
+    MallItem::singletonPort = singletonPort;
 }

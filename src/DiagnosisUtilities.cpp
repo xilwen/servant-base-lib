@@ -3,7 +3,7 @@
 #include "HtmlFileDownloader.hpp"
 #include "Logger.hpp"
 #include "ProfileManager.hpp"
-#include "json.hpp"
+#include <asio.hpp>
 
 using json = nlohmann::json;
 
@@ -25,6 +25,9 @@ DiagnosisUtilities::DiagnosisUtilities()
 
 std::string DiagnosisUtilities::getIpFromIpify()
 {
+    if(!ipifyCache.empty()){
+        return ipifyCache;
+    }
     timer = 0;
     while (HtmlFileDownloader::getInstance()->isDownloading())
     {
@@ -58,8 +61,18 @@ std::string DiagnosisUtilities::getIpFromIpify()
     ifstream.close();
     if (!ip.empty())
     {
+        ipifyCache = ip;
         return ip;
     }
     return "N/A(data error)";
 }
 
+bool DiagnosisUtilities::portIsUsing(unsigned int port)
+{
+    asio::io_service ioService;
+    tcp::acceptor acceptor(ioService);
+    asio::error_code errorCode;
+    auto tmp = acceptor.open(tcp::v4(), errorCode) ||
+    acceptor.bind({tcp::v4(), static_cast<unsigned short>(port)}, errorCode);
+    return (errorCode == asio::error::address_in_use);
+}
